@@ -1,3 +1,3 @@
 ﻿# 3D-visualisointi
 
-Ohjelmointistudio 2 -kurssin projektityö. Testi
+Ohjelmointistudio 2 -kurssin projektityö. 
