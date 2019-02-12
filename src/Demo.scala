@@ -26,12 +26,6 @@ object Demo extends JFXApp {
   val windowWidth = 1280
   val windowHeight = 720
   
-  //Could be used to calculate the remainder for negative numbers
-  def mod(m: Double, n: Double) = {
-    if(m < 0) m % n + n
-    else m % n
-  }
-  
 //  val frameRate = 60 
   val fov = 100 //Field of view in degrees
   val fovInRadians = math.toRadians(fov) //Converted to radians
@@ -99,11 +93,6 @@ object Demo extends JFXApp {
   
   def turn(dx: Double) = {
     this.heading += dx * sensitivity * fovInRadians
-    if(this.heading < 0) {
-      this.heading += 2 * math.Pi
-    } else if(this.heading > 2 * math.Pi) {
-      this.heading -= 2 * math.Pi
-    }
   }
   def moveForward(elapsedTime: Double) = move(math.sin(this.heading), math.cos(this.heading), elapsedTime)
   def moveRight(elapsedTime: Double)   = move(math.cos(this.heading), -math.sin(this.heading), elapsedTime)
@@ -113,24 +102,33 @@ object Demo extends JFXApp {
   def move(xChange: Double, yChange: Double, elapsedTime: Double) = {
     //In case the player is moving in two directions at once, it won't look like the player is moving faster
     val coEfficient = {
-      if((wPressed && dPressed) || (wPressed && aPressed) || (aPressed && sPressed) || (sPressed && dPressed)) 3 * elapsedTime / math.sqrt(2)
+      if(movingStraight && movingSideWays) 3 * elapsedTime / math.sqrt(2)
       else 3 * elapsedTime
     }
+    val wallsNearby = walls.filter(wall => new Vec(wall.v1.x - location.x, wall.v1.y - location.y).length < 2)
     val newXLocation = new Vec(this.location.x + coEfficient * xChange, this.location.y)
-    if(walls.forall (wall => new Line(this.location, newXLocation).lineIntersect(wall).isEmpty )) this.location = newXLocation
+    if(wallsNearby.forall (wall => new Line(this.location, newXLocation).lineIntersect(wall).isEmpty )) this.location = newXLocation
     val newYLocation = new Vec(this.location.x, this.location.y + coEfficient * yChange)
-    if(walls.forall (wall => new Line(this.location, newYLocation).lineIntersect(wall).isEmpty )) this.location = newYLocation
+    if(wallsNearby.forall (wall => new Line(this.location, newYLocation).lineIntersect(wall).isEmpty )) this.location = newYLocation
+  }
+  
+  def pointWithinFov(point: Vec) = {
+    val headingUnitized = new Vec(math.sin(heading), math.cos(heading))
+    val diff = new Vec(point.x - location.x, point.y - location.y).unitize()
+    //Take the dot product of the heading and diff
+    val dotProduct = headingUnitized.x * diff.x + headingUnitized.y * diff.y
+    dotProduct > math.cos(fovInRadians / 2)
+  }
+  def wallWithinFov(wall: Line) = {
+    pointWithinFov(wall.v1) || pointWithinFov(wall.v2) || 
+    wall.lineIntersect(new Line(location, new Vec(location.x + 100 * math.sin(heading), location.y + 100 * math.cos(heading)))).isDefined
   }
   
   def paint() = {
     var rectangles = Vector[Rectangle]() //All pieces of wall that will be drawn on the screen
-    //For excluding the walls which are outside the current fov, TODO
-//    val fovLeftBoundary = heading - fovInRadians / 2
-//    val fovRightBoundary = heading + fovInRadians / 2
-//    val wallsInsideFov = walls.filter { wall =>
-//      (wall.v1.angle(this.location, heading) > fovLeftBoundary && wall.v1.angle(this.location, heading) < fovRightBoundary) ||
-//      (wall.v2.angle(this.location, heading) > fovLeftBoundary && wall.v2.angle(this.location, heading) < fovRightBoundary)
-//    }
+    //For excluding the walls which are outside the current fov
+    val wallsInsideFov = walls.filter(wall => wallWithinFov(wall))
+    println(wallsInsideFov.size)
     for(x <- 0 until windowWidth) { //Go through each ray
       //The angle of each ray depends on the field of view and the width of the window
       val rayHeading = heading + (x - windowWidth / 2) * fovInRadians / windowWidth 
@@ -139,7 +137,7 @@ object Demo extends JFXApp {
       //Contains all pieces of walls this ray intersects
       var intersections = Vector[Rectangle]() 
       //For a ray, check which walls it intersects
-      for(wall <- walls) { 
+      for(wall <- wallsInsideFov) { 
         val intersection = ray.lineIntersect(wall)
         intersection match {
           case Some(intersection) => {
@@ -175,10 +173,10 @@ object Demo extends JFXApp {
     val elapsedTime = (t - previousTime) / 1000000000.0 //The elapsed time in seconds
     previousTime = t
     fps = (1 / elapsedTime).toInt
-    if(wPressed) moveForward(elapsedTime)
-    if(aPressed) moveLeft(elapsedTime)
-    if(sPressed) moveBack(elapsedTime)
-    if(dPressed) moveRight(elapsedTime)
+    if(wPressed && !sPressed) moveForward(elapsedTime)
+    if(aPressed && !dPressed) moveLeft(elapsedTime)
+    if(sPressed && !wPressed) moveBack(elapsedTime)
+    if(dPressed && !aPressed) moveRight(elapsedTime)
     paint() 
     gc.setFill(new Color("white"))
     gc.fillText(fps.toString, 10, 10, 100)
@@ -207,6 +205,8 @@ object Demo extends JFXApp {
   private var aPressed = false
   private var sPressed = false
   private var dPressed = false
+  def movingStraight = (wPressed && !sPressed) || (sPressed && !wPressed) 
+  def movingSideWays = (aPressed && !dPressed) || (dPressed && !aPressed) 
   
   canvas.onKeyPressed = (e: KeyEvent) => {
     e.code match {

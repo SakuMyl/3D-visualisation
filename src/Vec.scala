@@ -7,13 +7,7 @@ class Vec(val x: Double, val y: Double) {
   val length = math.sqrt(this.x * this.x + this.y * this.y) 
   
   //Determines the angle between two vectors, TODO
-  def angle(another: Vec, heading: Double) = {
-    val diff = new Vec(this.x - another.x, this.y - another.y)
-    if(diff.y >= 0 && diff.x >= 0) heading + math.asin(diff.x / diff.length)
-    else if(diff.y >= 0 && diff.x < 0) heading + math.asin(diff.x / diff.length)
-    else if(diff.y < 0 && diff.x >= 0) heading + math.asin(-diff.y / diff.length) + (math.Pi / 2)
-    else heading + math.asin(diff.x / diff.length) - math.Pi / 2
-  }
+  def unitize() = new Vec(x / length, y / length)
   
   override def toString = "Vector at (" + this.x + ", " + this.y + ")" 
 }
