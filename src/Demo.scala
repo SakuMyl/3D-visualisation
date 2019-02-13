@@ -17,7 +17,9 @@ import scalafx.scene.Cursor
 
 object Demo extends JFXApp {
   
-  private var walls = Vector[Wall]()
+  val world = new World("C:/Users/mylly/onedrive/työpöytä/kentät/map.txt")
+  
+  val player = world.player
   
   val screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize()
   val screenHeight = screenSize.getHeight().toInt
@@ -26,112 +28,21 @@ object Demo extends JFXApp {
   val windowWidth = 1280
   val windowHeight = 720
   
-  val fov = 100 //Field of view in degrees
-  val fovInRadians = math.toRadians(fov) //Converted to radians
-  val sensitivity = 5 //Determines how much moving the mouse turns the camera. 1 is very low, 10 is very high
-  
-  private var heading = math.Pi / 2
-  
-  
-  val reader = new BufferedReader(new FileReader("c:/users/mylly/onedrive/työpöytä/kentät/map.txt"))
-//  val reader = new BufferedReader(new FileReader("src/map.txt"))
-  
-  var lineCursor = 0
-  var charCursor = 0
-  var line = reader.readLine()
-  var arr = Array[Array[Char]]()
-  while(line != null && line.trim.nonEmpty) {
-    charCursor = 0
-    arr = arr :+ line.toCharArray()
-    for(c <- line) {
-      arr(lineCursor)(charCursor) = c
-      charCursor += 1
-    }
-    line = reader.readLine()
-    lineCursor += 1
-  }
-  val mapWidth = charCursor + 2
-  val mapHeight = lineCursor + 2
-  //Padding with walls
-  arr = arr.map(row => '#' +: row :+ '#')
-  val pad = ("#" * mapWidth).toCharArray()
-  arr = pad +: arr :+ pad
-  
-  arr.indices.foreach{rowIndex => arr(rowIndex).indices.foreach{charIndex =>
-    if(arr(rowIndex)(charIndex) == '#') {
-        val vecs = Vector(new Vec(charIndex, -rowIndex), new Vec(charIndex + 1, -rowIndex), 
-                          new Vec(charIndex + 1, -rowIndex - 1), new Vec(charIndex, -rowIndex - 1))
-        walls = walls ++: Vector(new Wall(vecs(0), vecs(1)), new Wall(vecs(1), vecs(2)), new Wall(vecs(2), vecs(3)), new Wall(vecs(3), vecs(0)))
-      }
-  }}
-  
-  var wallsToRemove = Vector[Wall]()
-  
-  //Remove walls that are covered by other walls and can thus never be seen to reduce performance issues,
-  //if there are 
-  for(wall <- walls) {
-    if(walls.filter(another => another != wall).exists{another => another.equals(wall)}) {
-      wallsToRemove = wallsToRemove :+ wall
-    }
-  }
-  walls = walls.filterNot(wall => wallsToRemove.contains(wall))
-  println(walls.size)
-  
-  private var yLoc = arr.indices.filter(row => arr(row).exists(_ == '.')).min
-  private var xLoc = arr(yLoc).indexOf('.')
-  private var location = new Vec(xLoc + 0.5, -yLoc - 0.5)
-  
-  
   val canvas = new Canvas(windowWidth, windowHeight)
   val gc = canvas.graphicsContext2D
   var color = new Color("blue")
   gc.setFill(color)
   color = new Color(0, 0, 0)
   
-  
-  def turn(dx: Double) = {
-    this.heading += dx * sensitivity * fovInRadians
-  }
-  def moveForward(elapsedTime: Double) = move(math.sin(this.heading), math.cos(this.heading), elapsedTime)
-  def moveRight(elapsedTime: Double)   = move(math.cos(this.heading), -math.sin(this.heading), elapsedTime)
-  def moveLeft(elapsedTime: Double)    = move(-math.cos(this.heading), math.sin(this.heading), elapsedTime)
-  def moveBack(elapsedTime: Double)    = move(-math.sin(this.heading), -math.cos(this.heading), elapsedTime)
-  def moveFR(elapsedTime: Double)      = move(math.sin(this.heading + math.Pi / 4), math.cos(this.heading + math.Pi / 4), elapsedTime)
-  def moveFL(elapsedTime: Double)      = move(math.sin(this.heading - math.Pi / 4), math.cos(this.heading - math.Pi / 4), elapsedTime)
-  def moveBR(elapsedTime: Double)      = move(-math.sin(this.heading - math.Pi / 4), -math.cos(this.heading - math.Pi / 4), elapsedTime)
-  def moveBL(elapsedTime: Double)      = move(-math.sin(this.heading + math.Pi / 4), -math.cos(this.heading + math.Pi / 4), elapsedTime)
-  
-  def move(xChange: Double, yChange: Double, elapsedTime: Double) = {
-    //The multiplier 3 is here to make movement faster 
-    val coEfficient = 3 * elapsedTime
-    val wallsNearby = walls.filter(wall => new Vec(wall.v1.x - location.x, wall.v1.y - location.y).length < 2)
-    val newXLocation = new Vec(this.location.x + coEfficient * xChange, this.location.y)
-    if(wallsNearby.forall (wall => new Line(this.location, newXLocation).lineIntersect(wall).isEmpty )) this.location = newXLocation
-    val newYLocation = new Vec(this.location.x, this.location.y + coEfficient * yChange)
-    if(wallsNearby.forall (wall => new Line(this.location, newYLocation).lineIntersect(wall).isEmpty )) this.location = newYLocation
-  }
-  
-  def wallWithinFov(wall: Line) = {
-    def pointWithinFov(point: Vec) = {
-      val headingUnitized = new Vec(math.sin(heading), math.cos(heading))
-      val diff = new Vec(point.x - location.x, point.y - location.y).unitize()
-      //Take the dot product of the heading and diff
-      val dotProduct = headingUnitized.x * diff.x + headingUnitized.y * diff.y
-      dotProduct > math.cos(fovInRadians / 2)
-    }
-    pointWithinFov(wall.v1) || pointWithinFov(wall.v2) || 
-    wall.lineIntersect(new Line(location, new Vec(location.x + 100 * math.sin(heading), location.y + 100 * math.cos(heading)))).isDefined
-  }
-  
   def paint() = {
     var rectangles = Vector[Rectangle]() //All pieces of wall that will be drawn on the screen
     //Exclude the walls that are outside the current fov
-    val wallsInsideFov = walls.filter(wall => wallWithinFov(wall))
+    val wallsInsideFov = world.getWalls.filter(wall => player.wallWithinFov(wall))
     for(x <- 0 until windowWidth) { //Go through each ray
       //The angle of each ray depends on the field of view and the width of the window
-      val rayHeading = heading + (x - windowWidth / 2) * fovInRadians / windowWidth 
+      val rayHeading = player.getHeading + (x - windowWidth / 2) * player.fov / windowWidth 
       //Create a ray from current location to the direction of rayHeading
-      val ray = new Line(location, new Vec(location.x + 100 * math.sin(rayHeading), location.y + 100 * math.cos(rayHeading)))
+      val ray = new Line(player.getLocation, new Vec(player.getLocation.x + 100 * math.sin(rayHeading), player.getLocation.y + 100 * math.cos(rayHeading)))
       //Contains all pieces of walls this ray intersects
       var intersections = Vector[Rectangle]() 
       //For a ray, check which walls it intersects
@@ -141,7 +52,7 @@ object Demo extends JFXApp {
           case Some(intersection) => 
             val distance = new Vec(intersection.x - ray.v1.x, intersection.y - ray.v1.y).length
             //The rectangle height is divided by math.cos(heading - rayHeading) to get rid of the fisheye effect
-            val rectHeight = (1.5 * windowHeight / distance / fovInRadians / math.cos(heading - rayHeading)).toInt
+            val rectHeight = (1.5 * windowHeight / distance / player.fov / math.cos(player.getHeading - rayHeading)).toInt
             //Adjust the brightness of the color according to distance
             color = new Color((255 / (0.3 * distance + 1)).toInt, 0, 0)
             intersections = intersections :+ new Rectangle(x, distance, rectHeight, color)
@@ -155,7 +66,7 @@ object Demo extends JFXApp {
       
     }
     //Clear the screen from the last frame 
-    gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight())
+    gc.clearRect(0, 0, windowWidth, windowHeight)
     gc.setFill("gray")
     //Set the background to gray
     gc.fillRect(0, 0, windowWidth, windowHeight)
@@ -172,17 +83,17 @@ object Demo extends JFXApp {
     previousTime = t
     fps = (1 / elapsedTime).toInt
     if(wPressed && !sPressed) {
-      if(aPressed && !dPressed) moveFL(elapsedTime)
-      else if(dPressed && !aPressed) moveFR(elapsedTime)
-      else moveForward(elapsedTime)
+      if(aPressed && !dPressed) player.moveFL(elapsedTime)
+      else if(dPressed && !aPressed) player.moveFR(elapsedTime)
+      else player.moveForward(elapsedTime)
     }
     else if(sPressed && !wPressed) {
-      if(aPressed && !dPressed) moveBL(elapsedTime)
-      else if(dPressed && !aPressed) moveBR(elapsedTime)
-      else moveBack(elapsedTime)
+      if(aPressed && !dPressed) player.moveBL(elapsedTime)
+      else if(dPressed && !aPressed) player.moveBR(elapsedTime)
+      else player.moveBack(elapsedTime)
     }
-    else if(aPressed && !dPressed) moveLeft(elapsedTime)
-    else if(dPressed && !aPressed) moveRight(elapsedTime)
+    else if(aPressed && !dPressed) player.moveLeft(elapsedTime)
+    else if(dPressed && !aPressed) player.moveRight(elapsedTime)
     paint() 
     gc.setFill(new Color("white"))
     gc.fillText(fps.toString, 10, 10, 100)
@@ -203,7 +114,7 @@ object Demo extends JFXApp {
   
   canvas.setOnMouseMoved{e => {
     val dx = e.sceneX - windowWidth / 2
-    turn(dx / 2000)
+    player.turn(dx / 2000)
     robot.mouseMove(screenWidth / 2, screenHeight / 2)
   }}
 

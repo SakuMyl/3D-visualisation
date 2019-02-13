@@ -31,14 +31,18 @@ class Line(val v1: Vec, val v2: Vec) {
     val v = new Vec(wall.v2.x - wall.v1.x, wall.v2.y - wall.v1.y)
     
     val vxu = v.x * u.y - v.y * u.x //Magnitude of the cross product of v and u
-    val w = new Vec(this.v1.x - wall.v1.x, this.v1.y - wall.v1.y)
-    val t = (w.x * u.y - w.y * u.x) / vxu
-    val s = (w.x * v.y - w.y * v.x) / vxu      
-    if(t >= 0 && t <= 1 && s >= 0 && s <= 1) {
-      Some(new Vec(wall.v1.x + t * v.x, wall.v1.y + t * v.y))
-    }
-    else {
-      None
-    }
+//    if(vxu != 0) {
+      val w = new Vec(this.v1.x - wall.v1.x, this.v1.y - wall.v1.y)
+      val t = (w.x * u.y - w.y * u.x) / vxu
+      val s = (w.x * v.y - w.y * v.x) / vxu    
+      if(t >= 0 && t <= 1 && s >= 0 && s <= 1) {
+        Some(new Vec(wall.v1.x + t * v.x, wall.v1.y + t * v.y))
+      }
+      else {
+        None
+      }  
+//    } else {
+//        Some(wall.v1)
+//    }
   }
 }
