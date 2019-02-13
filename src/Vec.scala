@@ -8,10 +8,13 @@ class Vec(val x: Double, val y: Double) {
   
   def -(another: Vec) = new Vec(this.x - another.x, this.y - another.y)
   
-  def dotProduct(another:Vec) = this.x * another.x + this.y * another.y
+  def dotProduct(another: Vec) = this.x * another.x + this.y * another.y
+  
+  def crossProduct(another: Vec) = this.x * another.y - this.y * another.x
   
   def equals(another: Vec) = this.x == another.x && this.y == another.y
   
+ 
   //Determines the angle between two vectors, TODO
   def unitize() = new Vec(x / length, y / length)
   

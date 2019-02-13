@@ -11,8 +11,8 @@ import scalafx.animation.AnimationTimer
 import scalafx.scene.input.MouseEvent
 import scalafx.scene.input.KeyCode
 import java.awt.Robot
-import scalafx.scene.paint.Color
 import scalafx.scene.Cursor
+import scalafx.scene.paint.Color
 
 
 object Demo extends JFXApp {
@@ -30,9 +30,7 @@ object Demo extends JFXApp {
   
   val canvas = new Canvas(windowWidth, windowHeight)
   val gc = canvas.graphicsContext2D
-  var color = new Color("blue")
-  gc.setFill(color)
-  color = new Color(0, 0, 0)
+  val color = new Color("red")
   
   def paint() = {
     var rectangles = Vector[Rectangle]() //All pieces of wall that will be drawn on the screen
@@ -50,12 +48,12 @@ object Demo extends JFXApp {
         val intersection = ray.lineIntersect(wall)
         intersection match {
           case Some(intersection) => 
-            val distance = new Vec(intersection.x - ray.v1.x, intersection.y - ray.v1.y).length
+            val distance = (ray.v1 - intersection).length
             //The rectangle height is divided by math.cos(heading - rayHeading) to get rid of the fisheye effect
-            val rectHeight = (1.5 * windowHeight / distance / player.fov / math.cos(player.getHeading - rayHeading)).toInt
+            val rectHeight = (1.5 * windowHeight / (distance * player.fov * math.cos(player.getHeading - rayHeading))).toInt
             //Adjust the brightness of the color according to distance
-            color = new Color((255 / (0.3 * distance + 1)).toInt, 0, 0)
-            intersections = intersections :+ new Rectangle(x, distance, rectHeight, color)
+            val rectColor = new Color(wall.color).deriveColor(1, 1, (1 / (0.3 * distance + 1)),1)
+            intersections = intersections :+ new Rectangle(x, distance, rectHeight, rectColor)
           case None =>
         }
       }
@@ -67,9 +65,12 @@ object Demo extends JFXApp {
     }
     //Clear the screen from the last frame 
     gc.clearRect(0, 0, windowWidth, windowHeight)
-    gc.setFill("gray")
-    //Set the background to gray
-    gc.fillRect(0, 0, windowWidth, windowHeight)
+    val backGroundColor = new Color("gray")
+    //Paint the background. Brightness of the background depends on how close to the center of the screen it is
+    for(y <- 0 until windowHeight) {
+      gc.setFill(backGroundColor.deriveColor(1, 1, ((y - windowHeight / 2).abs + 1.0) / (windowHeight / 2), 1))
+      gc.fillRect(0, y, windowWidth, 1)
+    }
     //Draw the walls
     rectangles.foreach { r => 
         gc.setFill(r.color)

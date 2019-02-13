@@ -6,13 +6,16 @@ class Player(location: Vec, heading: Double, val world: World) {
   
   private var currentLocation = location
   
-  val fovInDegrees = 100 //Field of view in degrees
+  val fovInDegrees = 80 //Field of view in degrees
   val fov = math.toRadians(fovInDegrees) //Converted to radians
   val sensitivity = 5 //Determines how much moving the mouse turns the camera. 1 is very low, 10 is very high
   
   def turn(dx: Double) = {
     currentHeading += dx * sensitivity * fov
+//    if(currentHeading < 0) currentHeading += 2 * math.Pi
+//    else if(currentHeading > 2 * math.Pi) currentHeading -= 2 * math.Pi
   }
+  
   def moveForward(elapsedTime: Double) = move(math.sin(currentHeading), math.cos(currentHeading), elapsedTime)
   def moveRight(elapsedTime: Double)   = move(math.cos(currentHeading), -math.sin(currentHeading), elapsedTime)
   def moveLeft(elapsedTime: Double)    = move(-math.cos(currentHeading), math.sin(currentHeading), elapsedTime)
@@ -44,7 +47,7 @@ class Player(location: Vec, heading: Double, val world: World) {
     }
     pointWithinFov(wall.v1) || pointWithinFov(wall.v2) || 
     wall.lineIntersect(new Line(currentLocation, new Vec(currentLocation.x + 100 * math.sin(currentHeading),
-                        currentLocation.y + 100 * math.cos(currentHeading)))).isDefined
+    currentLocation.y + 100 * math.cos(currentHeading)))).isDefined
   }
   def getHeading = this.currentHeading
   def getLocation = this.currentLocation
