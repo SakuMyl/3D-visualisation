@@ -56,6 +56,5 @@ class World(textFile: String) {
   private var yLoc = arr.indices.filter(row => arr(row).exists(_ == '.')).min
   private var xLoc = arr(yLoc).indexOf('.')
   val player = new Player(new Vec(xLoc + 0.5, -yLoc - 0.5), 0, this)
-  println(player.getLocation)
   
 }

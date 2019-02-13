@@ -4,9 +4,13 @@ import scalafx.scene.paint.Color
 
 class Vec(val x: Double, val y: Double) {
   
-  def equals(another: Vec) = this.x == another.x && this.y == another.y
-  
   val length = math.sqrt(this.x * this.x + this.y * this.y) 
+  
+  def -(another: Vec) = new Vec(this.x - another.x, this.y - another.y)
+  
+  def dotProduct(another:Vec) = this.x * another.x + this.y * another.y
+  
+  def equals(another: Vec) = this.x == another.x && this.y == another.y
   
   //Determines the angle between two vectors, TODO
   def unitize() = new Vec(x / length, y / length)

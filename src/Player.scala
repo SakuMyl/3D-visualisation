@@ -26,7 +26,7 @@ class Player(location: Vec, heading: Double, val world: World) {
     //The multiplier 3 is here to make movement faster 
     val coEfficient = 3 * elapsedTime
     //For all walls near the player, check whether the player is trying to move through them before allowing the change of location
-    val wallsNearby = world.getWalls.filter(wall => new Vec(wall.v1.x - currentLocation.x, wall.v1.y - currentLocation.y).length < 2)
+    val wallsNearby = world.getWalls.filter(wall => (wall.v1 - currentLocation).length < 2)
     val newXLocation = new Vec(currentLocation.x + coEfficient * xChange, currentLocation.y)
     if(wallsNearby.forall (wall => new Line(currentLocation, newXLocation).lineIntersect(wall).isEmpty )) currentLocation = newXLocation
     val newYLocation = new Vec(currentLocation.x, currentLocation.y + coEfficient * yChange)
@@ -35,10 +35,11 @@ class Player(location: Vec, heading: Double, val world: World) {
   
   def wallWithinFov(wall: Line) = {
     def pointWithinFov(point: Vec) = {
+      //Unit vector of the player's heading
       val headingUnitized = new Vec(math.sin(currentHeading), math.cos(currentHeading))
-      val diff = new Vec(point.x - currentLocation.x, point.y - currentLocation.y).unitize()
+      val diff = (point - currentLocation).unitize()
       //Take the dot product of the heading and diff
-      val dotProduct = headingUnitized.x * diff.x + headingUnitized.y * diff.y
+      val dotProduct = headingUnitized.dotProduct(diff)
       dotProduct > math.cos(fov / 2)
     }
     pointWithinFov(wall.v1) || pointWithinFov(wall.v2) || 
