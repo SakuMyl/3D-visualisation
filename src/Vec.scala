@@ -15,9 +15,6 @@ class Vec(val x: Double, val y: Double) {
   def equals(another: Vec) = this.x == another.x && this.y == another.y
   
  
-  //Determines the angle between two vectors, TODO
-  def unitize() = new Vec(x / length, y / length)
-  
   override def toString = "Vector at (" + this.x + ", " + this.y + ")" 
 }
 

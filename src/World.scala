@@ -50,11 +50,11 @@ class World(textFile: String) {
       wallsToRemove = wallsToRemove :+ wall
     }
   }
+  println(walls.size)
   walls = walls.filterNot(wall => wallsToRemove.contains(wall))
-  
+  println(walls.size)
   //First row and column with no wall is given as the player's location
   private var yLoc = arr.indices.filter(row => arr(row).exists(_ == '.')).min
   private var xLoc = arr(yLoc).indexOf('.')
   val player = new Player(new Vec(xLoc + 0.5, -yLoc - 0.5), 0, this)
- println(walls.size) 
 }

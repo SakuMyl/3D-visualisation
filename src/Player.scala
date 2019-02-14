@@ -36,14 +36,15 @@ class Player(location: Vec, heading: Double, val world: World) {
     if(wallsNearby.forall (wall => new Line(currentLocation, newYLocation).lineIntersect(wall).isEmpty )) currentLocation = newYLocation
   }
   
-  def wallWithinFov(wall: Line) = {
+  def wallWithinFov(wall: Wall) = {
     def pointWithinFov(point: Vec) = {
       //Unit vector of the player's heading
       val headingUnitized = new Vec(math.sin(currentHeading), math.cos(currentHeading))
       val diff = point - currentLocation
+      val length = diff.length
       //Take the dot product of the heading and diff
-      val dotProduct = headingUnitized.dotProduct(diff.unitize())
-      dotProduct > math.cos(fov / 2) && diff.length < Demo.renderingDistance
+      val dotProduct = headingUnitized.dotProduct(new Vec(diff.x / length, diff.y / length))
+      dotProduct > math.cos(fov / 2) && length < Demo.renderingDistance
     }
     pointWithinFov(wall.v1) || pointWithinFov(wall.v2) || 
     wall.lineIntersect(new Line(currentLocation, new Vec(currentLocation.x + 100 * math.sin(currentHeading),

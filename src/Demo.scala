@@ -28,12 +28,7 @@ object Demo extends JFXApp {
   val windowWidth = 1280
   val windowHeight = 720
   
-  val renderingDistance = 60
-//  val sinTable = Array.tabulate(100000)(i => math.sin((i - 25000) * 2 * math.Pi / 50000))
-//  val cosTable = Array.tabulate(100000)(i => math.cos((i - 25000) * 2 * math.Pi / 50000))
-  
-//  def sin(x: Double) = sinTable((x * 25000 / math.Pi + 25000).toInt)
-//  def cos(x: Double) = cosTable((x * 25000 / math.Pi + 25000).toInt)
+  val renderingDistance = 30
   
   val canvas = new Canvas(windowWidth, windowHeight)
   val gc = canvas.graphicsContext2D
@@ -50,9 +45,9 @@ object Demo extends JFXApp {
       val ray = new Line(player.getLocation, new Vec(player.getLocation.x + renderingDistance * math.sin(rayHeading), 
                                                      player.getLocation.y + renderingDistance * math.cos(rayHeading)))
       //Contains all pieces of walls this ray intersects
-//      var intersections = Vector[Rectangle]() 
+      var intersections = Vector[Rectangle]() 
       //For a ray, check which walls it intersects
-      var closest: Option[Rectangle] = None 
+//      var closest: Option[] = None 
       for(wall <- wallsInsideFov) { 
         val intersection = ray.lineIntersect(wall)
         intersection match {
@@ -62,15 +57,16 @@ object Demo extends JFXApp {
             val rectHeight = (1.5 * windowHeight / (distance * player.fov * math.cos(player.getHeading - rayHeading))).toInt
             //Adjust the brightness of the color according to distance
             val rectColor = new Color(wall.color).deriveColor(1, 1, (1 / (0.3 * distance + 1)),1)
-            if(closest.isEmpty || distance < closest.get.distance) closest = Some(new Rectangle(x, distance, rectHeight, rectColor))
-//            intersections = intersections :+ new Rectangle(x, distance, rectHeight, rectColor)
+//            if(closest.isEmpty || distance < closest.get.distance) closest = Some(new Rectangle(x, distance, rectHeight, rectColor))
+            intersections = intersections :+ new Rectangle(x, distance, rectHeight, rectColor)
           case None =>
         }
       }
       //Choose the closest of the intersections 
-      if(closest.nonEmpty) {
-        rectangles = rectangles :+ closest.get
-      }
+//      if(closest.nonEmpty) {
+//        rectangles = rectangles :+ closest.get
+//      }
+      if(intersections.nonEmpty) rectangles = rectangles :+ intersections.minBy(_.distance)
       
     }
     //Clear the screen from the last frame 
@@ -78,7 +74,7 @@ object Demo extends JFXApp {
     val backGroundColor = new Color("gray")
     //Paint the background. Brightness of the background depends on how close to the center of the screen it is
     for(y <- 0 until windowHeight) {
-      gc.setFill(backGroundColor.deriveColor(1, 1, ((y - windowHeight / 2).abs + 1.0) / (windowHeight / 2), 1))
+      gc.setFill(backGroundColor.deriveColor(1, 1, (2.0 * ((y - windowHeight / 2).abs)) / windowHeight, 1))
       gc.fillRect(0, y, windowWidth, 1)
     }
     //Draw the walls
@@ -87,12 +83,12 @@ object Demo extends JFXApp {
         gc.fillRect(r.screenPosition, windowHeight / 2 - r.height / 2, 1, r.height) 
     }
   }
-  var fps = 0
+//  var fps = 0
   private var previousTime: Long = 0
   val timer = AnimationTimer(t => { 
     val elapsedTime = (t - previousTime) / 1000000000.0 //The elapsed time in seconds
     previousTime = t
-    fps = (1 / elapsedTime).toInt
+//    fps = (1 / elapsedTime).toInt
     if(wPressed && !sPressed) {
       if(aPressed && !dPressed) player.moveFL(elapsedTime)
       else if(dPressed && !aPressed) player.moveFR(elapsedTime)
@@ -106,8 +102,8 @@ object Demo extends JFXApp {
     else if(aPressed && !dPressed) player.moveLeft(elapsedTime)
     else if(dPressed && !aPressed) player.moveRight(elapsedTime)
     paint() 
-    gc.setFill(new Color("white"))
-    gc.fillText(fps.toString, 10, 10, 100)
+//    gc.setFill(new Color("white"))
+//    gc.fillText(fps.toString, 10, 10, 100)
     })
   timer.start()
   
