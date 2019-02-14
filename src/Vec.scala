@@ -4,7 +4,7 @@ import scalafx.scene.paint.Color
 
 class Vec(val x: Double, val y: Double) {
   
-  val length = math.sqrt(this.x * this.x + this.y * this.y) 
+  def length = math.sqrt(this.x * this.x + this.y * this.y) 
   
   def -(another: Vec) = new Vec(this.x - another.x, this.y - another.y)
   

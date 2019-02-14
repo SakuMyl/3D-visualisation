@@ -12,8 +12,8 @@ class Player(location: Vec, heading: Double, val world: World) {
   
   def turn(dx: Double) = {
     currentHeading += dx * sensitivity * fov
-//    if(currentHeading < 0) currentHeading += 2 * math.Pi
-//    else if(currentHeading > 2 * math.Pi) currentHeading -= 2 * math.Pi
+    if(currentHeading < 0) currentHeading += 2 * math.Pi
+    else if(currentHeading > 2 * math.Pi) currentHeading -= 2 * math.Pi
   }
   
   def moveForward(elapsedTime: Double) = move(math.sin(currentHeading), math.cos(currentHeading), elapsedTime)
@@ -40,10 +40,10 @@ class Player(location: Vec, heading: Double, val world: World) {
     def pointWithinFov(point: Vec) = {
       //Unit vector of the player's heading
       val headingUnitized = new Vec(math.sin(currentHeading), math.cos(currentHeading))
-      val diff = (point - currentLocation).unitize()
+      val diff = point - currentLocation
       //Take the dot product of the heading and diff
-      val dotProduct = headingUnitized.dotProduct(diff)
-      dotProduct > math.cos(fov / 2)
+      val dotProduct = headingUnitized.dotProduct(diff.unitize())
+      dotProduct > math.cos(fov / 2) && diff.length < Demo.renderingDistance
     }
     pointWithinFov(wall.v1) || pointWithinFov(wall.v2) || 
     wall.lineIntersect(new Line(currentLocation, new Vec(currentLocation.x + 100 * math.sin(currentHeading),

@@ -23,12 +23,14 @@ class Line(val v1: Vec, val v2: Vec) {
     val u = this.v2 - this.v1
     val v = wall.v2 - wall.v1
     
+    val epsilon = 0.000001
+    
     val vxu = v.crossProduct(u) //Magnitude of the cross product of v and u
 //    if(vxu != 0) {
       val w = this.v1 - wall.v1
       val t = (w.crossProduct(u)) / vxu
       val s = (w.crossProduct(v)) / vxu    
-      if(t >= 0 && t <= 1 && s >= 0 && s <= 1) {
+      if(t > -epsilon && t < 1 + epsilon && s > -epsilon && s < 1 + epsilon) {
         Some(new Vec(wall.v1.x + t * v.x, wall.v1.y + t * v.y))
       }
       else {

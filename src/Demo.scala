@@ -17,7 +17,7 @@ import scalafx.scene.paint.Color
 
 object Demo extends JFXApp {
   
-  val world = new World("C:/Users/mylly/onedrive/työpöytä/kentät/map.txt")
+  val world = new World("src/map.txt")
   
   val player = world.player
   
@@ -27,6 +27,13 @@ object Demo extends JFXApp {
   
   val windowWidth = 1280
   val windowHeight = 720
+  
+  val renderingDistance = 60
+//  val sinTable = Array.tabulate(100000)(i => math.sin((i - 25000) * 2 * math.Pi / 50000))
+//  val cosTable = Array.tabulate(100000)(i => math.cos((i - 25000) * 2 * math.Pi / 50000))
+  
+//  def sin(x: Double) = sinTable((x * 25000 / math.Pi + 25000).toInt)
+//  def cos(x: Double) = cosTable((x * 25000 / math.Pi + 25000).toInt)
   
   val canvas = new Canvas(windowWidth, windowHeight)
   val gc = canvas.graphicsContext2D
@@ -40,10 +47,12 @@ object Demo extends JFXApp {
       //The angle of each ray depends on the field of view and the width of the window
       val rayHeading = player.getHeading + (x - windowWidth / 2) * player.fov / windowWidth 
       //Create a ray from current location to the direction of rayHeading
-      val ray = new Line(player.getLocation, new Vec(player.getLocation.x + 100 * math.sin(rayHeading), player.getLocation.y + 100 * math.cos(rayHeading)))
+      val ray = new Line(player.getLocation, new Vec(player.getLocation.x + renderingDistance * math.sin(rayHeading), 
+                                                     player.getLocation.y + renderingDistance * math.cos(rayHeading)))
       //Contains all pieces of walls this ray intersects
-      var intersections = Vector[Rectangle]() 
+//      var intersections = Vector[Rectangle]() 
       //For a ray, check which walls it intersects
+      var closest: Option[Rectangle] = None 
       for(wall <- wallsInsideFov) { 
         val intersection = ray.lineIntersect(wall)
         intersection match {
@@ -53,13 +62,14 @@ object Demo extends JFXApp {
             val rectHeight = (1.5 * windowHeight / (distance * player.fov * math.cos(player.getHeading - rayHeading))).toInt
             //Adjust the brightness of the color according to distance
             val rectColor = new Color(wall.color).deriveColor(1, 1, (1 / (0.3 * distance + 1)),1)
-            intersections = intersections :+ new Rectangle(x, distance, rectHeight, rectColor)
+            if(closest.isEmpty || distance < closest.get.distance) closest = Some(new Rectangle(x, distance, rectHeight, rectColor))
+//            intersections = intersections :+ new Rectangle(x, distance, rectHeight, rectColor)
           case None =>
         }
       }
       //Choose the closest of the intersections 
-      if(intersections.nonEmpty) {
-        rectangles = rectangles :+ intersections.minBy(_.distance)
+      if(closest.nonEmpty) {
+        rectangles = rectangles :+ closest.get
       }
       
     }
