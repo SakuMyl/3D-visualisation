@@ -14,6 +14,11 @@ class Vec(val x: Double, val y: Double) {
   
   def equals(another: Vec) = this.x == another.x && this.y == another.y
   
+  def unitize() = {
+    val lenght = this.length
+    new Vec(this.x / lenght, this.y / length)
+  }
+  
  
   override def toString = "Vector at (" + this.x + ", " + this.y + ")" 
 }

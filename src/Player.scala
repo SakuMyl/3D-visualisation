@@ -11,9 +11,7 @@ class Player(location: Vec, heading: Double, val world: World) {
   val sensitivity = 5 //Determines how much moving the mouse turns the camera. 1 is very low, 10 is very high
   
   def turn(dx: Double) = {
-    currentHeading += dx * sensitivity * fov
-    if(currentHeading < 0) currentHeading += 2 * math.Pi
-    else if(currentHeading > 2 * math.Pi) currentHeading -= 2 * math.Pi
+    currentHeading += dx * sensitivity
   }
   
   def moveForward(elapsedTime: Double) = move(math.sin(currentHeading), math.cos(currentHeading), elapsedTime)

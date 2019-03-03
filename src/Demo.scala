@@ -13,6 +13,7 @@ import scalafx.scene.input.KeyCode
 import java.awt.Robot
 import scalafx.scene.Cursor
 import scalafx.scene.paint.Color
+import scalafx.application.Platform
 
 
 object Demo extends JFXApp {
@@ -28,7 +29,7 @@ object Demo extends JFXApp {
   val windowWidth = 1280
   val windowHeight = 720
   
-  val renderingDistance = 30
+  val renderingDistance = 20
   
   val canvas = new Canvas(windowWidth, windowHeight)
   val gc = canvas.graphicsContext2D
@@ -47,7 +48,6 @@ object Demo extends JFXApp {
       //Contains all pieces of walls this ray intersects
       var intersections = Vector[Rectangle]() 
       //For a ray, check which walls it intersects
-//      var closest: Option[] = None 
       for(wall <- wallsInsideFov) { 
         val intersection = ray.lineIntersect(wall)
         intersection match {
@@ -57,15 +57,11 @@ object Demo extends JFXApp {
             val rectHeight = (1.5 * windowHeight / (distance * player.fov * math.cos(player.getHeading - rayHeading))).toInt
             //Adjust the brightness of the color according to distance
             val rectColor = new Color(wall.color).deriveColor(1, 1, (1 / (0.3 * distance + 1)),1)
-//            if(closest.isEmpty || distance < closest.get.distance) closest = Some(new Rectangle(x, distance, rectHeight, rectColor))
             intersections = intersections :+ new Rectangle(x, distance, rectHeight, rectColor)
           case None =>
         }
       }
       //Choose the closest of the intersections 
-//      if(closest.nonEmpty) {
-//        rectangles = rectangles :+ closest.get
-//      }
       if(intersections.nonEmpty) rectangles = rectangles :+ intersections.minBy(_.distance)
       
     }
@@ -74,7 +70,7 @@ object Demo extends JFXApp {
     val backGroundColor = new Color("gray")
     //Paint the background. Brightness of the background depends on how close to the center of the screen it is
     for(y <- 0 until windowHeight) {
-      gc.setFill(backGroundColor.deriveColor(1, 1, (2.0 * ((y - windowHeight / 2).abs)) / windowHeight, 1))
+      gc.setFill(backGroundColor.deriveColor(1, 1, ((y - windowHeight / 2).abs) / windowHeight.toDouble, 1))
       gc.fillRect(0, y, windowWidth, 1)
     }
     //Draw the walls
@@ -83,12 +79,13 @@ object Demo extends JFXApp {
         gc.fillRect(r.screenPosition, windowHeight / 2 - r.height / 2, 1, r.height) 
     }
   }
-//  var fps = 0
+  var fps = 0
   private var previousTime: Long = 0
+  var i = 0
   val timer = AnimationTimer(t => { 
     val elapsedTime = (t - previousTime) / 1000000000.0 //The elapsed time in seconds
     previousTime = t
-//    fps = (1 / elapsedTime).toInt
+    if(i % 10 == 0) fps = (1 / elapsedTime).toInt
     if(wPressed && !sPressed) {
       if(aPressed && !dPressed) player.moveFL(elapsedTime)
       else if(dPressed && !aPressed) player.moveFR(elapsedTime)
@@ -101,9 +98,10 @@ object Demo extends JFXApp {
     }
     else if(aPressed && !dPressed) player.moveLeft(elapsedTime)
     else if(dPressed && !aPressed) player.moveRight(elapsedTime)
-    paint() 
-//    gc.setFill(new Color("white"))
-//    gc.fillText(fps.toString, 10, 10, 100)
+    paint()
+    gc.setFill(new Color("white"))
+    gc.fillText(fps.toString, 10, 10, 100)
+    i += 1
     })
   timer.start()
   

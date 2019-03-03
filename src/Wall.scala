@@ -1,5 +1,7 @@
 package src
 
+import scalafx.scene.canvas.Canvas
+
 class Wall(v1: Vec, v2: Vec) extends Line(v1, v2) {
   val color = "red"
 }
