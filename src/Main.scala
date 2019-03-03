@@ -14,11 +14,19 @@ import java.awt.Robot
 import scalafx.scene.Cursor
 import scalafx.scene.paint.Color
 import scalafx.application.Platform
+import scala.util.Try
 
 
-object Demo extends JFXApp {
+object Main extends JFXApp {
   
-  val world = new World("src/map.txt")
+  val world: World = {
+    try {
+      new World("src/map.txt")
+    } catch {
+      case e: InvalidFileException =>
+        new World("src/Default map.txt")
+    }
+  }
   
   val player = world.player
   
@@ -134,6 +142,7 @@ object Demo extends JFXApp {
       case KeyCode.A => aPressed = true
       case KeyCode.S => sPressed = true        
       case KeyCode.D => dPressed = true
+      case KeyCode.F => stage.setFullScreen(true)
       case _ => 
     }
   }

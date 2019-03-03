@@ -42,7 +42,7 @@ class Player(location: Vec, heading: Double, val world: World) {
       val length = diff.length
       //Take the dot product of the heading and diff
       val dotProduct = headingUnitized.dotProduct(new Vec(diff.x / length, diff.y / length))
-      dotProduct > math.cos(fov / 2) && length < Demo.renderingDistance
+      dotProduct > math.cos(fov / 2) && length < Main.renderingDistance
     }
     pointWithinFov(wall.v1) || pointWithinFov(wall.v2) || 
     wall.lineIntersect(new Line(currentLocation, new Vec(currentLocation.x + 100 * math.sin(currentHeading),
