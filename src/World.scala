@@ -17,17 +17,23 @@ class World(textFile: String) {
   val length = line.trim.length
   if(length == 0) throw new InvalidFileException("First line in map was empty")
   var arr = Array[Array[Char]]()
-  while(line != null && line.nonEmpty) {
+  while(line.nonEmpty) {
     if(line.length == length) {
-      charCursor = 0
-      arr = arr :+ line.toCharArray()
-      for(c <- line) {
-        arr(lineCursor)(charCursor) = c
-        charCursor += 1
+      try {
+        charCursor = 0
+        arr = arr :+ line.toCharArray()
+        for(c <- line) {
+          arr(lineCursor)(charCursor) = c
+          charCursor += 1
+        }
+        line = reader.readLine().trim
+        lineCursor += 1 
+      } catch {
+        case e: NullPointerException =>
+          line = ""
+          reader.close()
       }
-      line = reader.readLine().trim
-      lineCursor += 1 
-    } else {
+    } else if(line.length != 0) {
       throw new InvalidFileException("Map was not rectangular")
     }
   }

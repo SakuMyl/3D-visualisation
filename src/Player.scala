@@ -14,19 +14,27 @@ class Player(location: Vec, heading: Double, val world: World) {
     currentHeading += dx * sensitivity
   }
   
+  
   def moveForward(elapsedTime: Double) = move(math.sin(currentHeading), math.cos(currentHeading), elapsedTime)
   def moveRight(elapsedTime: Double)   = move(math.cos(currentHeading), -math.sin(currentHeading), elapsedTime)
   def moveLeft(elapsedTime: Double)    = move(-math.cos(currentHeading), math.sin(currentHeading), elapsedTime)
   def moveBack(elapsedTime: Double)    = move(-math.sin(currentHeading), -math.cos(currentHeading), elapsedTime)
+  //Move forward and right
   def moveFR(elapsedTime: Double)      = move(math.sin(currentHeading + math.Pi / 4), math.cos(currentHeading + math.Pi / 4), elapsedTime)
+  //Move forward and left
   def moveFL(elapsedTime: Double)      = move(math.sin(currentHeading - math.Pi / 4), math.cos(currentHeading - math.Pi / 4), elapsedTime)
+  //Move back and right
   def moveBR(elapsedTime: Double)      = move(-math.sin(currentHeading - math.Pi / 4), -math.cos(currentHeading - math.Pi / 4), elapsedTime)
+  //Move back and left
   def moveBL(elapsedTime: Double)      = move(-math.sin(currentHeading + math.Pi / 4), -math.cos(currentHeading + math.Pi / 4), elapsedTime)
   
   def move(xChange: Double, yChange: Double, elapsedTime: Double) = {
     //The multiplier 3 is here to make movement faster 
     val coEfficient = 3 * elapsedTime
-    //For all walls near the player, check whether the player is trying to move through them before allowing the change of location
+    /*
+     * For all walls near the player, check whether the player is trying to move through them before allowing the change of location.
+     * The change of location is done for both x- and y-components separately to allow the player to "slide" on walls.
+     */
     val wallsNearby = world.getWalls.filter(wall => (wall.v1 - currentLocation).length < 2)
     val newXLocation = new Vec(currentLocation.x + coEfficient * xChange, currentLocation.y)
     if(wallsNearby.forall (wall => new Line(currentLocation, newXLocation).lineIntersect(wall).isEmpty )) currentLocation = newXLocation
@@ -42,7 +50,7 @@ class Player(location: Vec, heading: Double, val world: World) {
       val length = diff.length
       //Take the dot product of the heading and diff
       val dotProduct = headingUnitized.dotProduct(new Vec(diff.x / length, diff.y / length))
-      dotProduct > math.cos(fov / 2) && length < Main.renderingDistance
+      dotProduct > math.cos(fov / 2) && length < Demo.renderingDistance
     }
     pointWithinFov(wall.v1) || pointWithinFov(wall.v2) || 
     wall.lineIntersect(new Line(currentLocation, new Vec(currentLocation.x + 100 * math.sin(currentHeading),

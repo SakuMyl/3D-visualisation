@@ -13,11 +13,12 @@ import scalafx.scene.input.KeyCode
 import java.awt.Robot
 import scalafx.scene.Cursor
 import scalafx.scene.paint.Color
-import scalafx.application.Platform
-import scala.util.Try
+import scalafx.scene.input.KeyCodeCombination
+import javafx.scene.input.KeyCombination
+import scalafx.scene.text.Font
 
 
-object Main extends JFXApp {
+object Demo extends JFXApp {
   
   val world: World = {
     try {
@@ -34,8 +35,8 @@ object Main extends JFXApp {
   val screenHeight = screenSize.getHeight().toInt
   val screenWidth = screenSize.getWidth().toInt
   
-  val windowWidth = 1280
-  val windowHeight = 720
+  private var windowWidth = 1280
+  private var windowHeight = 720
   
   val renderingDistance = 20
   
@@ -43,6 +44,35 @@ object Main extends JFXApp {
   val gc = canvas.graphicsContext2D
   val color = new Color("red")
   
+  def pause() = {
+    canvas.cursor = Cursor.Default
+    gc.font = new Font(100)
+    gc.fillText("PAUSED", 50, 100)
+    gc.font = Font.default
+    timer.stop()
+    this.paused = true
+  }
+  def continue() = {
+    canvas.cursor = Cursor.None
+    timer.start()
+    this.paused = false
+  }
+  private var paused = false
+  
+  def setFullScreen() = {
+    this.windowWidth = 1280
+    this.windowHeight = 720
+    stage.setFullScreen(true)
+  }
+  
+  def setSmallWindow() = {
+    stage.setFullScreen(false)
+    this.windowWidth = 860
+    this.windowHeight = 540
+    stage.setWidth(windowWidth)
+    stage.setHeight(windowHeight)
+    stage.centerOnScreen()
+  }
   def paint() = {
     var rectangles = Vector[Rectangle]() //All pieces of wall that will be drawn on the screen
     //Exclude the walls that are outside the current fov
@@ -50,7 +80,7 @@ object Main extends JFXApp {
     for(x <- 0 until windowWidth) { //Go through each ray
       //The angle of each ray depends on the field of view and the width of the window
       val rayHeading = player.getHeading + (x - windowWidth / 2) * player.fov / windowWidth 
-      //Create a ray from current location to the direction of rayHeading
+      //Create a ray from current location to the direction of rayHeading to a distance equivalent to rendering distance
       val ray = new Line(player.getLocation, new Vec(player.getLocation.x + renderingDistance * math.sin(rayHeading), 
                                                      player.getLocation.y + renderingDistance * math.cos(rayHeading)))
       //Contains all pieces of walls this ray intersects
@@ -115,20 +145,23 @@ object Main extends JFXApp {
   
   
   stage = new JFXApp.PrimaryStage {
+    fullScreen = true
+    resizable = false
+    fullScreenExitKey = KeyCombination.NO_MATCH
     title = "3D-visualisation"
-    scene = new Scene(windowWidth, windowHeight) {
+    scene = new Scene {
       content = canvas
       canvas.cursor = Cursor.None
     }
   }
-  stage.setFullScreen(true)
-  
   val robot = new Robot
   
   canvas.setOnMouseMoved{e => {
-    val dx = e.sceneX - windowWidth / 2
-    player.turn(dx / 2000)
-    robot.mouseMove(screenWidth / 2, screenHeight / 2)
+    if(!paused) {
+      val dx = e.screenX - (stage.getX() + stage.getWidth() / 2)
+      player.turn(dx / 2000)
+      robot.mouseMove(screenWidth / 2, screenHeight / 2)
+    }
   }}
 
   private var wPressed = false
@@ -142,7 +175,12 @@ object Main extends JFXApp {
       case KeyCode.A => aPressed = true
       case KeyCode.S => sPressed = true        
       case KeyCode.D => dPressed = true
-      case KeyCode.F => stage.setFullScreen(true)
+      case KeyCode.F => {
+        if(!stage.fullScreen.value) setFullScreen()
+        else setSmallWindow()
+      }
+      case KeyCode.P => if(paused) continue() else pause()
+      case KeyCode.Escape => stage.close() 
       case _ => 
     }
   }
