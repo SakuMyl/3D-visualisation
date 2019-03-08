@@ -21,6 +21,7 @@ import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control.ButtonType
 import scalafx.scene.image.Image
 import scalafx.scene.image.WritableImage
+import scalafx.scene.effect.ColorAdjust
 
 
 object Demo extends JFXApp {
@@ -44,7 +45,7 @@ object Demo extends JFXApp {
   }
   val world: World = {
     try {
-      new World("src/Default map.txt")
+      new World("src/map.txt")
     } catch {
       case e: InvalidFileException =>
         new Alert(AlertType.Error) {
@@ -112,7 +113,8 @@ object Demo extends JFXApp {
     }
     out
   }
-  val imageTable = Vector.tabulate(512)(i => getSubImage(new Image("src/bricks.jpg"), i, 0, 1, 512))
+  val texture = new Image("src/bricks.jpg")
+  val imageTable = Vector.tabulate(512)(i => getSubImage(texture, i, 0, 1, 512))
   def paint() = {
     var rectangles = Vector[Rectangle]() //All pieces of wall that will be drawn on the screen
     //Exclude the walls that are outside the current fov
@@ -135,8 +137,7 @@ object Demo extends JFXApp {
             val rectHeight = (1.5 * windowHeight / (distance * player.fov * math.cos(player.getHeading - rayHeading))).toInt
             //Adjust the brightness of the color according to distance
 //            val rectColor = new Color(wall.color).deriveColor(1, 1, (1 / (0.3 * distance + 1)),1)
-            val image = intersection._2.texture
-            val newImage = imageTable(((intersection._1.x % 1 + intersection._1.y % 1).abs * image.getWidth()).toInt)
+            val newImage = imageTable(((intersection._1.x % 1 + intersection._1.y % 1).abs * texture.getWidth()).toInt)
             intersections = intersections :+ new Rectangle(x, distance, rectHeight, newImage)
           case None =>
         }
@@ -157,7 +158,12 @@ object Demo extends JFXApp {
     rectangles.foreach { r => 
 //        gc.setFill(r.color)
 //        gc.fillRect(r.screenPosition, windowHeight / 2 - r.height / 2, 1, r.height) 
+//      val colorAdjust = new ColorAdjust
+//      colorAdjust.setBrightness(1 / (0.3 * r.distance + 1))
+//      gc.setEffect(colorAdjust)
       gc.drawImage(r.texture, r.screenPosition, windowHeight / 2 - r.height / 2, 1, r.height)
+//      colorAdjust.setBrightness(1)
+//      gc.setEffect(colorAdjust)
     }
   }
   var fps = 0
@@ -180,7 +186,6 @@ object Demo extends JFXApp {
     else if(aPressed && !dPressed) player.moveLeft(elapsedTime)
     else if(dPressed && !aPressed) player.moveRight(elapsedTime)
     paint()
-//    gc.drawImage(new Image("src/bricks.jpg"), 100, 100, 300, 300)
     gc.setFill(new Color("white"))
     gc.fillText(fps.toString, 10, 10, 100)
     i += 1

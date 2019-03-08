@@ -3,12 +3,8 @@ package src
 import scalafx.scene.canvas.Canvas
 import scalafx.scene.image.Image
 
-class Wall(v1: Vec, v2: Vec) extends Line(v1, v2) {
-  val color = "red"
-  val texture = new Image("src/bricks.jpg") {
-    override def preserveRatio = false
-  }
-}
+class Wall(v1: Vec, v2: Vec) extends Line(v1, v2) 
+
 class Line(val v1: Vec, val v2: Vec) {
   //Checks whether two lines share the same vertices, walls are always created from the text file characters
   //in a clockwise manner. Hence the first vertex of one wall should be the second vertex of another. 
