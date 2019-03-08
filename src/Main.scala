@@ -16,40 +16,59 @@ import scalafx.scene.paint.Color
 import scalafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination
 import scalafx.scene.text.Font
+import scalafx.scene.control.Alert
+import scalafx.scene.control.Alert.AlertType
+import scalafx.scene.control.ButtonType
+import scalafx.scene.image.Image
+import scalafx.scene.image.WritableImage
 
 
 object Demo extends JFXApp {
   
+  private var windowWidth = 1280
+  private var windowHeight = 720
+  
+  val canvas = new Canvas(windowWidth, windowHeight)
+  val gc = canvas.graphicsContext2D
+  val color = new Color("red")
+   
+  stage = new JFXApp.PrimaryStage {
+    fullScreen = true
+    resizable = false
+    fullScreenExitKey = KeyCombination.NO_MATCH
+    title = "3D-visualisation"
+    scene = new Scene {
+      content = canvas
+      canvas.cursor = Cursor.None
+    }
+  }
   val world: World = {
     try {
-      new World("src/map.txt")
+      new World("src/Default map.txt")
     } catch {
       case e: InvalidFileException =>
+        new Alert(AlertType.Error) {
+          headerText = "Error when loading map, default map loaded instead"
+          contentText = e.getMessage
+        }.showAndWait() 
         new World("src/Default map.txt")
     }
   }
   
   val player = world.player
   
-  val screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize()
-  val screenHeight = screenSize.getHeight().toInt
-  val screenWidth = screenSize.getWidth().toInt
-  
-  private var windowWidth = 1280
-  private var windowHeight = 720
   
   val renderingDistance = 20
   
-  val canvas = new Canvas(windowWidth, windowHeight)
-  val gc = canvas.graphicsContext2D
-  val color = new Color("red")
-  
   def pause() = {
     canvas.cursor = Cursor.Default
-    gc.font = new Font(100)
-    gc.fillText("PAUSED", 50, 100)
-    gc.font = Font.default
     timer.stop()
+    paint()
+    //Font size and color are set so that it's clearly visible that the game is paused
+    gc.setFill("white")
+    gc.font = new Font(100)
+    gc.fillText("PAUSED", stage.getWidth() / 2 - 175, stage.getHeight() / 2 + 25)
+    gc.font = Font.default
     this.paused = true
   }
   def continue() = {
@@ -57,12 +76,17 @@ object Demo extends JFXApp {
     timer.start()
     this.paused = false
   }
+  
   private var paused = false
   
   def setFullScreen() = {
     this.windowWidth = 1280
     this.windowHeight = 720
     stage.setFullScreen(true)
+    if(paused) {
+      continue()
+      pause()
+    }
   }
   
   def setSmallWindow() = {
@@ -72,7 +96,23 @@ object Demo extends JFXApp {
     stage.setWidth(windowWidth)
     stage.setHeight(windowHeight)
     stage.centerOnScreen()
+    if(paused) {
+      continue()
+      pause()
+    }
   }
+  def getSubImage(image: Image, x: Int, y: Int, width: Int, height: Int): Image = {
+    val pixelReader = image.getPixelReader()
+    val out = new WritableImage(width, height)
+    val pixelWriter = out.getPixelWriter()
+    for(i <- 0 until width) {
+      for(j <- 0 until height) {
+        pixelWriter.setArgb(i, j, pixelReader.getArgb(i + x, j + y))
+      }
+    }
+    out
+  }
+  val imageTable = Vector.tabulate(512)(i => getSubImage(new Image("src/bricks.jpg"), i, 0, 1, 512))
   def paint() = {
     var rectangles = Vector[Rectangle]() //All pieces of wall that will be drawn on the screen
     //Exclude the walls that are outside the current fov
@@ -90,12 +130,14 @@ object Demo extends JFXApp {
         val intersection = ray.lineIntersect(wall)
         intersection match {
           case Some(intersection) => 
-            val distance = (ray.v1 - intersection).length
+            val distance = (ray.v1 - intersection._1).length
             //The rectangle height is divided by math.cos(heading - rayHeading) to get rid of the fisheye effect
             val rectHeight = (1.5 * windowHeight / (distance * player.fov * math.cos(player.getHeading - rayHeading))).toInt
             //Adjust the brightness of the color according to distance
-            val rectColor = new Color(wall.color).deriveColor(1, 1, (1 / (0.3 * distance + 1)),1)
-            intersections = intersections :+ new Rectangle(x, distance, rectHeight, rectColor)
+//            val rectColor = new Color(wall.color).deriveColor(1, 1, (1 / (0.3 * distance + 1)),1)
+            val image = intersection._2.texture
+            val newImage = imageTable(((intersection._1.x % 1 + intersection._1.y % 1).abs * image.getWidth()).toInt)
+            intersections = intersections :+ new Rectangle(x, distance, rectHeight, newImage)
           case None =>
         }
       }
@@ -113,8 +155,9 @@ object Demo extends JFXApp {
     }
     //Draw the walls
     rectangles.foreach { r => 
-        gc.setFill(r.color)
-        gc.fillRect(r.screenPosition, windowHeight / 2 - r.height / 2, 1, r.height) 
+//        gc.setFill(r.color)
+//        gc.fillRect(r.screenPosition, windowHeight / 2 - r.height / 2, 1, r.height) 
+      gc.drawImage(r.texture, r.screenPosition, windowHeight / 2 - r.height / 2, 1, r.height)
     }
   }
   var fps = 0
@@ -137,25 +180,18 @@ object Demo extends JFXApp {
     else if(aPressed && !dPressed) player.moveLeft(elapsedTime)
     else if(dPressed && !aPressed) player.moveRight(elapsedTime)
     paint()
+//    gc.drawImage(new Image("src/bricks.jpg"), 100, 100, 300, 300)
     gc.setFill(new Color("white"))
     gc.fillText(fps.toString, 10, 10, 100)
     i += 1
     })
   timer.start()
   
-  
-  stage = new JFXApp.PrimaryStage {
-    fullScreen = true
-    resizable = false
-    fullScreenExitKey = KeyCombination.NO_MATCH
-    title = "3D-visualisation"
-    scene = new Scene {
-      content = canvas
-      canvas.cursor = Cursor.None
-    }
-  }
   val robot = new Robot
   
+  val screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize()
+  val screenHeight = screenSize.getHeight().toInt
+  val screenWidth = screenSize.getWidth().toInt
   canvas.setOnMouseMoved{e => {
     if(!paused) {
       val dx = e.screenX - (stage.getX() + stage.getWidth() / 2)

@@ -1,6 +1,7 @@
 package src
 
 import scalafx.scene.paint.Color
+import scalafx.scene.image.Image
 
 class Vec(val x: Double, val y: Double) {
   
@@ -23,7 +24,6 @@ class Vec(val x: Double, val y: Double) {
   override def toString = "Vector at (" + this.x + ", " + this.y + ")" 
 }
 
-
 //This class is used to draw rectangles on the screen according to where rays intersect with walls
-class Rectangle(val screenPosition: Double, val distance: Double, val height: Int, val color: Color)
+class Rectangle(val screenPosition: Double, val distance: Double, val height: Int, val texture: Image)
 

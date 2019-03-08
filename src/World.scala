@@ -14,31 +14,56 @@ class World(textFile: String) {
   var lineCursor = 0
   var charCursor = 0
   var line = reader.readLine().trim
-  val length = line.trim.length
-  if(length == 0) throw new InvalidFileException("First line in map was empty")
+  var length = line.length
   var arr = Array[Array[Char]]()
-  while(line.nonEmpty) {
-    if(line.length == length) {
+  var done = false
+  while(!done) {
+    /* 
+     * In case there are empty rows in the beginning of the file,
+     * they will be skipped until a non-empty row is found. 
+     * File reading will stop when an empty row is encountered or 
+     * the file ends.
+     */
+    if(line.length == length || length == 0) {
+      if(length == 0) length = line.length
       try {
-        charCursor = 0
-        arr = arr :+ line.toCharArray()
-        for(c <- line) {
-          arr(lineCursor)(charCursor) = c
-          charCursor += 1
+        if(length != 0) {
+          charCursor = 0
+          arr = arr :+ line.toCharArray()
+          for(c <- line) {
+            if(c == ' ' || c == '.') {
+              arr(lineCursor)(charCursor) = '.'
+            }
+            else if(c == '#') {
+              arr(lineCursor)(charCursor) = c
+            }
+            else {
+              throw new InvalidFileException("Invalid characters in file")
+            }
+            charCursor += 1
+          }
+          lineCursor += 1 
         }
         line = reader.readLine().trim
-        lineCursor += 1 
       } catch {
         case e: NullPointerException =>
-          line = ""
+          done = true
           reader.close()
       }
-    } else if(line.length != 0) {
-      throw new InvalidFileException("Map was not rectangular")
+    } else if(line.length != 0){
+      throw new InvalidFileException("Some rows were of different length")
+    } else {
+      done = true 
+      reader.close()
     }
+    
   }
-  //To make sure there is empty space in the world i.e. it isn't full of walls.
-  if(arr.forall(_.forall(_=='#'))) throw new InvalidFileException("No empty space found in map (only walls)")
+  /*
+   * To make sure there is empty space in the world i.e. it isn't full of walls
+   * and that the map isn't completely empty.
+   */
+  if(arr.forall(_.forall(_=='#'))) throw new InvalidFileException("No empty space found in map (only walls) or map was empty")
+  
   //Map width and height including padding 
   val mapWidth = charCursor + 2
   val mapHeight = lineCursor + 2
@@ -60,8 +85,6 @@ class World(textFile: String) {
                           new Vec(charIndex + 1, -rowIndex - 1), new Vec(charIndex, -rowIndex - 1))
         walls = walls ++: Vector(new Wall(vecs(0), vecs(1)), new Wall(vecs(1), vecs(2)), new Wall(vecs(2), vecs(3)), new Wall(vecs(3), vecs(0)))
       }
-    //To make sure there are no unexpected characters in the file i.e. something else than '#' or '.'.
-    else if(arr(rowIndex)(charIndex) != '.') throw new InvalidFileException("Invalid characters in file")
   }}
   
   var wallsToRemove = Vector[Wall]()

@@ -1,9 +1,13 @@
 package src
 
 import scalafx.scene.canvas.Canvas
+import scalafx.scene.image.Image
 
 class Wall(v1: Vec, v2: Vec) extends Line(v1, v2) {
   val color = "red"
+  val texture = new Image("src/bricks.jpg") {
+    override def preserveRatio = false
+  }
 }
 class Line(val v1: Vec, val v2: Vec) {
   //Checks whether two lines share the same vertices, walls are always created from the text file characters
@@ -21,7 +25,7 @@ class Line(val v1: Vec, val v2: Vec) {
    * s (when solving for t) and t (when solving for s)
    * s * u x u = 0 and t * v x v = 0
    */
-  def lineIntersect(wall: Line) = {
+  def lineIntersect(wall: Wall) = {
     val u = this.v2 - this.v1
     val v = wall.v2 - wall.v1
     
@@ -33,7 +37,7 @@ class Line(val v1: Vec, val v2: Vec) {
       val t0 = w.dotProduct(u) / (u.dotProduct(u))
       val t1 = t0 + (v.dotProduct(u) / (u.dotProduct(u)))
       if((t0 <= 1 && t1 >= 0) || (t0 >= 0 && t1 <= 1)) {
-        Some(wall.v1)
+        Some((wall.v1, wall))
       }
       else {
         None
@@ -44,7 +48,7 @@ class Line(val v1: Vec, val v2: Vec) {
       val s = q / vxu   
       val epsilon = 0.000001
       if(t > -epsilon && t < 1 + epsilon && s > -epsilon && s < 1 + epsilon) {
-        Some(new Vec(wall.v1.x + t * v.x, wall.v1.y + t * v.y))
+        Some((new Vec(wall.v1.x + t * v.x, wall.v1.y + t * v.y), wall))
       }
       else {
         None

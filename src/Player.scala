@@ -53,8 +53,8 @@ class Player(location: Vec, heading: Double, val world: World) {
       dotProduct > math.cos(fov / 2) && length < Demo.renderingDistance
     }
     pointWithinFov(wall.v1) || pointWithinFov(wall.v2) || 
-    wall.lineIntersect(new Line(currentLocation, new Vec(currentLocation.x + 100 * math.sin(currentHeading),
-    currentLocation.y + 100 * math.cos(currentHeading)))).isDefined
+    new Line(currentLocation, new Vec(currentLocation.x + 100 * math.sin(currentHeading),
+    currentLocation.y + 100 * math.cos(currentHeading))).lineIntersect(wall).isDefined
   }
   def getHeading = this.currentHeading
   def getLocation = this.currentLocation
