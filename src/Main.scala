@@ -113,8 +113,22 @@ object Demo extends JFXApp {
     }
     out
   }
+  def getTextureBrightness(texture: Image, distance: Double) = {
+    val brightnessCoefficient = 1 / (0.3 * distance + 1)
+    val pr = texture.getPixelReader
+    val out = new WritableImage(texture.getWidth().toInt, texture.getHeight().toInt)
+    val pw = out.getPixelWriter()
+    for(i <- 0 until texture.getWidth().toInt) {
+      for(j <- 0 until texture.getHeight().toInt) {
+        pw.setColor(i, j, pr.getColor(i, j).deriveColor(1, 1, brightnessCoefficient, 1))
+      }
+    }
+    out
+  }
   val texture = new Image("src/bricks.jpg")
-  val imageTable = Vector.tabulate(512)(i => getSubImage(texture, i, 0, 1, 512))
+  val imageTable = Array.tabulate(128)(i => getSubImage(texture, i * 4, 0, 1, 512))
+  val imageTableWithBrightness = Array.tabulate(500)(i => imageTable.map(image => getTextureBrightness(image, i / 5.0)))
+  
   def paint() = {
     var rectangles = Vector[Rectangle]() //All pieces of wall that will be drawn on the screen
     //Exclude the walls that are outside the current fov
@@ -137,7 +151,7 @@ object Demo extends JFXApp {
             val rectHeight = (1.5 * windowHeight / (distance * player.fov * math.cos(player.getHeading - rayHeading))).toInt
             //Adjust the brightness of the color according to distance
 //            val rectColor = new Color(wall.color).deriveColor(1, 1, (1 / (0.3 * distance + 1)),1)
-            val newImage = imageTable(((intersection._1.x % 1 + intersection._1.y % 1).abs * texture.getWidth()).toInt)
+            val newImage = imageTableWithBrightness((10 * distance).toInt)(((intersection._1.x % 1 + intersection._1.y % 1).abs * 128).toInt)
             intersections = intersections :+ new Rectangle(x, distance, rectHeight, newImage)
           case None =>
         }
@@ -155,17 +169,15 @@ object Demo extends JFXApp {
       gc.fillRect(0, y, windowWidth, 1)
     }
     //Draw the walls
+    
     rectangles.foreach { r => 
 //        gc.setFill(r.color)
 //        gc.fillRect(r.screenPosition, windowHeight / 2 - r.height / 2, 1, r.height) 
-//      val colorAdjust = new ColorAdjust
-//      colorAdjust.setBrightness(1 / (0.3 * r.distance + 1))
-//      gc.setEffect(colorAdjust)
       gc.drawImage(r.texture, r.screenPosition, windowHeight / 2 - r.height / 2, 1, r.height)
-//      colorAdjust.setBrightness(1)
-//      gc.setEffect(colorAdjust)
     }
   }
+  val colorAdjust = new ColorAdjust
+  
   var fps = 0
   private var previousTime: Long = 0
   var i = 0
