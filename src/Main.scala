@@ -59,7 +59,7 @@ object Demo extends JFXApp {
   val player = world.player
   
   
-  val renderingDistance = 20
+  val renderingDistance = 50
   
   def pause() = {
     canvas.cursor = Cursor.Default
@@ -102,6 +102,20 @@ object Demo extends JFXApp {
       pause()
     }
   }
+  def decreaseTextureQuality(texture: Image, m: Int) = {
+    val width = texture.getWidth().toInt / m
+    val height = texture.getHeight().toInt / m
+    val pixelReader = texture.getPixelReader()
+    val out = new WritableImage(width, height)
+    val pixelWriter = out.getPixelWriter()
+    for(i <- 0 until width) {
+      for(j <- 0 until height) {
+        pixelWriter.setArgb(i, j, pixelReader.getArgb(i * m, j * m))
+      }
+    }
+    out
+  }
+  
   def getSubImage(image: Image, x: Int, y: Int, width: Int, height: Int): Image = {
     val pixelReader = image.getPixelReader()
     val out = new WritableImage(width, height)
@@ -125,9 +139,30 @@ object Demo extends JFXApp {
     }
     out
   }
-  val texture = new Image("src/bricks.jpg")
-  val imageTable = Array.tabulate(128)(i => getSubImage(texture, i * 4, 0, 1, 512))
-  val imageTableWithBrightness = Array.tabulate(500)(i => imageTable.map(image => getTextureBrightness(image, i / 5.0)))
+  val texture1 = new Image("src/bricks.jpg")
+  val texture2 = decreaseTextureQuality(texture1, 2)
+  val texture3 = decreaseTextureQuality(texture1, 4)
+  val texture4 = decreaseTextureQuality(texture1, 8)
+  //distances closer than 2
+  val imageTable1 = Array.tabulate(512)(i => Array.tabulate(10)(j => getTextureBrightness(getSubImage(texture1, i, 0, 1, 512), j / 5.0)))
+  //distances closer than 5
+  val imageTable2 = Array.tabulate(256)(i => Array.tabulate(20)(j => getTextureBrightness(getSubImage(texture2, i, 0, 1, 256), 0.15 * j + 2)))
+  //distances closer than 20
+  val imageTable3 = Array.tabulate(128)(i => Array.tabulate(50)(j => getTextureBrightness(getSubImage(texture3, i, 0, 1, 128), 0.3 * j + 5)))
+  //distances greater than 20
+  val imageTable4 = Array.tabulate(64)(i => Array.tabulate(20)(j => getTextureBrightness(getSubImage(texture4, i, 0, 1, 64), 2 * j + 20)))
+  
+  def getTexture(distance: Double, x: Double) = {
+    if(distance < 2) {
+      imageTable1((x * 512).toInt)((distance * 5).toInt)
+    } else if(distance < 5) {
+      imageTable2((x * 256).toInt)(((distance - 2) / 0.15).toInt)
+    } else if(distance < 20) {
+      imageTable3((x * 128).toInt)(((distance - 5) / 0.3).toInt)
+    } else {
+      imageTable4((x * 64).toInt)(((distance - 20) / 2).toInt)
+    }
+  }
   
   def paint() = {
     var rectangles = Vector[Rectangle]() //All pieces of wall that will be drawn on the screen
@@ -151,7 +186,8 @@ object Demo extends JFXApp {
             val rectHeight = (1.5 * windowHeight / (distance * player.fov * math.cos(player.getHeading - rayHeading))).toInt
             //Adjust the brightness of the color according to distance
 //            val rectColor = new Color(wall.color).deriveColor(1, 1, (1 / (0.3 * distance + 1)),1)
-            val newImage = imageTableWithBrightness((10 * distance).toInt)(((intersection._1.x % 1 + intersection._1.y % 1).abs * 128).toInt)
+            val newImage = getTexture(distance, (intersection._1.x % 1 + intersection._1.y % 1).abs)
+//            val newImage = imageTableWithBrightness((10 * distance).toInt)(((intersection._1.x % 1 + intersection._1.y % 1).abs * 64).toInt)
             intersections = intersections :+ new Rectangle(x, distance, rectHeight, newImage)
           case None =>
         }
