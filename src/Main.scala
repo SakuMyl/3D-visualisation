@@ -110,19 +110,7 @@ object Demo extends JFXApp {
       pause()
     }
   }
-//  def decreaseTextureQuality(texture: Image, m: Int) = {
-//    val width = texture.getWidth().toInt / m
-//    val height = texture.getHeight().toInt / m
-//    val pixelReader = texture.getPixelReader()
-//    val out = new WritableImage(width, height)
-//    val pixelWriter = out.getPixelWriter()
-//    for(i <- 0 until width) {
-//      for(j <- 0 until height) {
-//        pixelWriter.setArgb(i, j, pixelReader.getArgb(i * m, j * m))
-//      }
-//    }
-//    out
-//  }
+  
   def getSubImageWithBrightness(image: Image, x: Double, distance: Double) = {
     val brightnessCoefficient = 1 / (0.3 * distance + 1)
     val xPos = (x * image.getWidth()).toInt
@@ -155,46 +143,11 @@ object Demo extends JFXApp {
 //    }
 //    out
 //  }
-//  def setBrightness(texture: Image, distance: Double) = {
-//    val brightnessCoefficient = 1 / (0.3 * distance + 1)
-//    val pr = texture.getPixelReader
-//    val out = new WritableImage(texture.getWidth().toInt, texture.getHeight().toInt)
-//    val pw = out.getPixelWriter()
-//    for(i <- 0 until texture.getWidth().toInt) {
-//      for(j <- 0 until texture.getHeight().toInt) {
-//        pw.setColor(i, j, pr.getColor(i, j).deriveColor(1, 1, brightnessCoefficient, 1))
-//      }
-//    }
-//    out
-//  }
-//  val texture1 = new Image("src/bricks.jpg")
-//  val texture2 = decreaseTextureQuality(texture1, 1)
-//  val texture3 = decreaseTextureQuality(texture1, 1)
-//  val texture4 = decreaseTextureQuality(texture1, 1)
+//  val texture = new Image("src/bricks.jpg")
 //  //distances closer than 2
-//  val imageTable1 = Array.tabulate(texture1.getHeight().toInt)(i => 
-//                    Array.tabulate(10)(j => setBrightness(getSubImage(texture1, i, 0, 1, texture1.getHeight().toInt), j / 5.0)))
-//  //distances closer than 5
-//  val imageTable2 = Array.tabulate(texture2.getHeight().toInt)(i => 
-//                    Array.tabulate(20)(j => setBrightness(getSubImage(texture2, i, 0, 1, texture2.getHeight().toInt), 0.15 * j + 2)))
-//  //distances closer than 20
-//  val imageTable3 = Array.tabulate(texture3.getHeight().toInt)(i => 
-//                    Array.tabulate(50)(j => setBrightness(getSubImage(texture3, i, 0, 1, texture3.getHeight().toInt), 0.3 * j + 5)))
-//  //distances greater than 20
-//  val imageTable4 = Array.tabulate(texture4.getHeight().toInt)(i => 
-//                    Array.tabulate(20)(j => setBrightness(getSubImage(texture4, i, 0, 1, texture4.getHeight().toInt), 2 * j + 20)))
+//  val imageTable = Array.tabulate(texture.getHeight().toInt)(i => 
+//                    Array.tabulate(10)(j => setBrightness(getSubImage(texture, i, 0, 1, texture.getHeight().toInt), j / 5.0)))
   
-//  def getTexture(distance: Double, x: Double) = {
-//    if(distance < 2) {
-//      imageTable1((x * imageTable1.size).toInt)((distance * 5).toInt)
-//    } else if(distance < 5) {
-//      imageTable2((x * imageTable2.size).toInt)(((distance - 2) / 0.15).toInt)
-//    } else if(distance < 20) {
-//      imageTable3((x * imageTable3.size).toInt)(((distance - 5) / 0.3).toInt)
-//    } else {
-//      imageTable4((x * imageTable4.size).toInt)(((distance - 20) / 2).toInt)
-//    }
-//  }
   
   def paint() = {
     var rectangles = Vector[Rectangle]() //All pieces of wall that will be drawn on the screen
