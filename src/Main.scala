@@ -58,7 +58,7 @@ object Demo extends JFXApp {
   
   val player = world.player
   
-  val renderingDistance = 40
+  val renderingDistance = 25
   
   val textures = Array(
       new Image("src/bluestone.png"),
@@ -126,7 +126,7 @@ object Demo extends JFXApp {
     out
   }
   val textureStripes: Array[Array[Array[Image]]] = Array.tabulate(textures.size)(tex => 
-      Array.tabulate(64)(stripe => Array.tabulate(renderingDistance * 10)(distance =>
+      Array.tabulate(64)(stripe => Array.tabulate(renderingDistance * 10 + 1)(distance =>
         getSubImageWithBrightness(textures(tex), stripe / 64.0, 0.1 * distance))))
   
   def getTexture(tex: Int, x: Double, distance: Double) = {
@@ -150,6 +150,10 @@ object Demo extends JFXApp {
   
   
   def paint() = {
+    //Clear the screen from the last frame 
+    gc.clearRect(0, 0, windowWidth, windowHeight)
+    gc.setFill(new Color("black"))
+    gc.fillRect(0, 0, windowWidth, windowHeight)
     var rectangles = Vector[Rectangle]() //All pieces of wall that will be drawn on the screen
     //Exclude the walls that are outside the current fov
     val wallsInsideFov = world.getWalls.filter(wall => player.wallWithinFov(wall))
@@ -167,41 +171,44 @@ object Demo extends JFXApp {
         val intersection = ray.lineIntersect(wall)
         intersection match {
           case Some(intersection) => 
-            val distance = (ray.v1 - intersection._1).length
-            if(closest.isEmpty || distance < closest.get.distance) {
+            val distanceSq = (ray.v1 - intersection._1).lengthSq
+            if(closest.isEmpty || distanceSq < closest.get.distance * closest.get.distance) {
+                val dist = math.sqrt(distanceSq)
                 //The rectangle height is divided by math.cos(heading - rayHeading) to get rid of the fisheye effect
-                val rectHeight = (1.5 * windowHeight / (distance * player.fov * math.cos(player.getHeading - rayHeading))).toInt
+                val rectHeight = (1.5 * windowHeight / (dist * player.fov * math.cos(player.getHeading - rayHeading))).toInt
                 //Adjust the brightness of the color according to distance
 //                val rectColor = new Color(wall.color).deriveColor(1, 1, (1 / (0.3 * distance + 1)),1)
-                val newImage = getTexture(intersection._2, (intersection._1.x % 1 + intersection._1.y % 1).abs, distance)
+                val newImage = getTexture(intersection._2, (intersection._1.x % 1 + intersection._1.y % 1).abs, dist)
 //                intersections = intersections :+ new Rectangle(x, distance, rectHeight, newImage)
 //                val newImage = getSubImageWithBrightness(textures(intersection._2), (intersection._1.x % 1 + intersection._1.y % 1).abs, distance)
-                closest = Some(new Rectangle(x, distance, rectHeight, newImage))
+                closest = Some(new Rectangle(x, dist, rectHeight, newImage))
             }
           case None =>
         }
       }
       //Choose the closest of the intersections 
-      if(closest.nonEmpty) rectangles = rectangles :+ closest.get//intersections.minBy(_.distance)
+//      if(closest.nonEmpty) rectangles = rectangles :+ closest.get//intersections.minBy(_.distance)
+      closest match {
+        case Some(r) => gc.drawImage(r.texture, r.screenPosition, (windowHeight - r.height) / 2, 1, r.height)
+        case None =>
+      }
       
     }
-    //Clear the screen from the last frame 
-    gc.clearRect(0, 0, windowWidth, windowHeight)
-    val backGroundColor = new Color("gray")
+    
+//    val backGroundColor = new Color("gray")
     //Paint the background. Brightness of the background depends on how close to the center of the screen it is
-    for(y <- 0 until windowHeight) {
-      gc.setFill(backGroundColor.deriveColor(1, 1, ((y - windowHeight / 2).abs) / windowHeight.toDouble, 1))
-      gc.fillRect(0, y, windowWidth, 1)
-    }
+//    for(y <- 0 until windowHeight) {
+//      gc.setFill(backGroundColor.deriveColor(1, 1, ((y - windowHeight / 2).abs) / windowHeight.toDouble, 1))
+//      gc.fillRect(0, y, windowWidth, 1)
+//    }
     //Draw the walls
     
-    rectangles.foreach { r => 
-//        gc.setFill(r.color)
-//        gc.fillRect(r.screenPosition, windowHeight / 2 - r.height / 2, 1, r.height) 
-      gc.drawImage(r.texture, r.screenPosition, windowHeight / 2 - r.height / 2, 1, r.height)
-    }
+//    rectangles.foreach { r => 
+////        gc.setFill(r.color)
+////        gc.fillRect(r.screenPosition, windowHeight / 2 - r.height / 2, 1, r.height) 
+//      gc.drawImage(r.texture, r.screenPosition, (windowHeight - r.height) / 2, 1, r.height)
+//    }
   }
-  val colorAdjust = new ColorAdjust
   
   var fps = 0
   private var previousTime: Long = 0

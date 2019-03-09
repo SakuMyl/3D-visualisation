@@ -5,7 +5,7 @@ import scalafx.scene.image.Image
 
 class Vec(val x: Double, val y: Double) {
   
-  def length = math.sqrt(this.x * this.x + this.y * this.y) 
+  def lengthSq = this.x * this.x + this.y * this.y
   
   def -(another: Vec) = new Vec(this.x - another.x, this.y - another.y)
   
@@ -16,8 +16,8 @@ class Vec(val x: Double, val y: Double) {
   def equals(another: Vec) = this.x == another.x && this.y == another.y
   
   def unitize() = {
-    val lenght = this.length
-    new Vec(this.x / lenght, this.y / length)
+    val length = math.sqrt(this.lengthSq)
+    new Vec(this.x / length, this.y / length)
   }
   
  

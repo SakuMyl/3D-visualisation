@@ -35,7 +35,7 @@ class World(textFile: String) {
             if(c == ' ' || c == '.') {
               arr(lineCursor)(charCursor) = '.'
             }
-            else if((0 to 6).contains(c.asDigit)) {
+            else if((0 to 7).contains(c.asDigit)) {
               arr(lineCursor)(charCursor) = c
             }
             else {
