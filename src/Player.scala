@@ -35,7 +35,7 @@ class Player(location: Vec, heading: Double, val world: World) {
      * For all walls near the player, check whether the player is trying to move through them before allowing the change of location.
      * The change of location is done for both x- and y-components separately to allow the player to "slide" on walls.
      */
-    val wallsNearby = world.getWalls.filter(wall => (wall.v1 - currentLocation).lengthSq < 1.0001)
+    val wallsNearby = world.getWalls.filter(wall => (wall.v1 - currentLocation).lengthSq < 2)
     val newXLocation = new Vec(currentLocation.x + coEfficient * xChange, currentLocation.y)
     if(wallsNearby.forall (wall => new Line(currentLocation, newXLocation).lineIntersect(wall).isEmpty )) currentLocation = newXLocation
     val newYLocation = new Vec(currentLocation.x, currentLocation.y + coEfficient * yChange)

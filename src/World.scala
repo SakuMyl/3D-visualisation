@@ -32,7 +32,7 @@ class World(textFile: String) {
           charCursor = 0
           arr = arr :+ line.toCharArray()
           for(c <- line) {
-            if(c == ' ' || c == '.') {
+            if(c == '.') {
               arr(lineCursor)(charCursor) = '.'
             }
             else if((0 to 7).contains(c.asDigit)) {

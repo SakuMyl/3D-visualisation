@@ -1,0 +1,22 @@
+Projektin tilanne 12.3.
+
+World -luokkaan on suunniteltu tiedoston lukemiseen liittyviä poikkeustapauksia
+huomioiden väärän pituiset rivit, tyhjän tai täysin seinistä koostuvan maailman, 
+sekä vääränlaiset merkit tiedostossa. Käyttöliittymään on lisätty napin painalluksella
+muuttuva ikkunan koko sekä pause -ominaisuus. Tiedoston formaattia on muutettu siten,
+että se tukee useita tekstuureja.
+
+Virhetilanteessa ohjelma heittää oikein poikkeukset niissä tilanteissa, joissa 
+poikkeus on suunniteltu heitettävän. Tekstuurit näkyvät käyttöliittymässä oikein.
+
+Tekstuureja ja niiden kirkkausasteita ei voi laskea jatkuvasti ilman merkittäviä
+suorituskykyongelmia. Ongelma on tällä hetkellä korjattu alkeellisesti siten, että
+lasketaan tarvittavat tekstuurien siivut ja kirkkausasteet ennalta taulukoihin ja 
+valitaan taulukosta sopiva siivu ajon aikana jokaiselle piirrettävälle seinälle.
+Jos valitsee tekstuurien resoluutioksi jotain suurempaa kuin 64 x 64, niin
+muisti loppuu kesken ennen kuin käyttöliittymän ikkuna ehtii edes tulla näkyviin.
+
+Käytetty työmäärä suunnitelmademon jälkeen on n. 15 tuntia.
+
+Olen projektisuunnitelman ennustetta hieman edellä. Tekstuurien toteuttaminen ei 
+ollut suunnitelmassa vielä tässä vaiheessa. 
