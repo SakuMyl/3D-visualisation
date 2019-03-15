@@ -3,12 +3,14 @@ package src
 import scalafx.scene.canvas.Canvas
 import scalafx.scene.image.Image
 
-class Wall(v1: Vec, v2: Vec, val tex: Int) extends Line(v1, v2) {
-}
+/*
+ * A wall is practically a line with the addition
+ * of a number of the texture it should be drawn with.
+ */
+class Wall(v1: Vec, v2: Vec, val tex: Int) extends Line(v1, v2) 
 
 class Line(val v1: Vec, val v2: Vec) {
-  //Checks whether two lines share the same vertices, walls are always created from the text file characters
-  //in a clockwise manner. Hence the first vertex of one wall should be the second vertex of another. 
+  //Checks whether two lines share the same vertices.
   def equals(another: Line) = {
     (this.v1.equals(another.v1) && this.v2.equals(another.v2)) ||
     (this.v1.equals(another.v2) && this.v2.equals(another.v1))
@@ -30,9 +32,12 @@ class Line(val v1: Vec, val v2: Vec) {
     val w = this.v1 - wall.v1
     val r = w.crossProduct(u)
     val q = w.crossProduct(v)
+    
     if(vxu == 0 && r == 0) {
       val t0 = w.dotProduct(u) / (u.dotProduct(u))
+      if(u.dotProduct(u) == 0) println(t0)
       val t1 = t0 + (v.dotProduct(u) / (u.dotProduct(u)))
+      
       if((t0 <= 1 && t1 >= 0) || (t0 >= 0 && t1 <= 1)) {
         Some((wall.v1, wall.tex))
       }
@@ -43,6 +48,7 @@ class Line(val v1: Vec, val v2: Vec) {
       
       val t = r / vxu
       val s = q / vxu   
+      
       val epsilon = 0.000001
       if(t > -epsilon && t < 1 + epsilon && s > -epsilon && s < 1 + epsilon) {
         Some((new Vec(wall.v1.x + t * v.x, wall.v1.y + t * v.y), wall.tex))
@@ -52,4 +58,5 @@ class Line(val v1: Vec, val v2: Vec) {
       }
     }
   }
+  
 }

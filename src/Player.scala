@@ -42,23 +42,22 @@ class Player(location: Vec, heading: Double, val world: World) {
     if(wallsNearby.forall (wall => new Line(currentLocation, newYLocation).lineIntersect(wall).isEmpty )) currentLocation = newYLocation
   }
   
-  def wallWithinFov(wall: Wall) = {
-    def pointWithinFov(point: Vec): Boolean = {
-      //Unit vector of the player's heading
-      val diff = point - currentLocation
-      val length = diff.lengthSq
-      if(length > Demo.renderingDistance * Demo.renderingDistance) return false
-      else {
-        val headingUnitized = new Vec(math.sin(currentHeading), math.cos(currentHeading))
-        //Take the dot product of the heading and diff
-        val dotProduct = headingUnitized.dotProduct(diff.unitize())
-        dotProduct > math.cos(fov / 2) 
-      }
-    }
-    pointWithinFov(wall.v1) || pointWithinFov(wall.v2) || 
-    new Line(currentLocation, new Vec(currentLocation.x + 100 * math.sin(currentHeading),
-    currentLocation.y + 100 * math.cos(currentHeading))).lineIntersect(wall).isDefined
-  }
+//  def wallWithinFov(wall: Wall) = {
+//    def pointWithinFov(point: Vec): Boolean = {
+//      val diff = point - currentLocation
+//      val length = diff.lengthSq
+//      if(length > Demo.renderingDistance * Demo.renderingDistance) return false
+//      else {
+//        val headingUnitized = new Vec(math.sin(currentHeading), math.cos(currentHeading))
+//        //Take the dot product of the heading and diff
+//        val dotProduct = headingUnitized.dotProduct(diff.unitize())
+//        dotProduct > math.cos(fov / 2) 
+//      }
+//    }
+//    pointWithinFov(wall.v1) || pointWithinFov(wall.v2) || 
+//    new Line(currentLocation, new Vec(currentLocation.x + 100 * math.sin(currentHeading),
+//    currentLocation.y + 100 * math.cos(currentHeading))).lineIntersect(wall).isDefined
+//  }
   def getHeading = this.currentHeading
   def getLocation = this.currentLocation
 }
