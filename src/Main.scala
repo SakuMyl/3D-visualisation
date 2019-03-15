@@ -212,13 +212,8 @@ object Demo extends JFXApp {
             val distance = math.sqrt((ray.v1 - intersection._1).lengthSq)
             //The rectangle height is divided by math.cos(heading - rayHeading) to get rid of the fisheye effect
             val rectHeight = (1.5 * windowHeight / (distance * player.fov * math.cos(player.getHeading - rayHeading))).toInt
-                //Adjust the brightness of the color according to distance
-//                val rectColor = new Color(wall.color).deriveColor(1, 1, (1 / (0.3 * distance + 1)),1)
-//                val newImage = getTexture(intersection._2, (intersection._1.x % 1 + intersection._1.y % 1).abs, dist)
-//                intersections = intersections :+ new Rectangle(x, distance, rectHeight, newImage)
-//                val newImage = getSubImageWithBrightness(textures(intersection._2), (intersection._1.x % 1 + intersection._1.y % 1).abs, distance)
-//                closest = Some(new Rectangle(x, dist, rectHeight, newImage))
             
+//            val fakeLight = if(intersection._1.x % 1 == 0) 10 else 0
             //Get the appropriate texture according to the distance
             val texture = getTextureBrightness(intersection._2, distance)
             /*
