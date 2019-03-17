@@ -33,7 +33,7 @@ object Demo extends JFXApp {
    */
   val canvas = new Canvas(windowWidth, windowHeight)
   val gc = canvas.graphicsContext2D
-   
+  
   
   stage = new JFXApp.PrimaryStage {
     fullScreen = true
@@ -68,19 +68,24 @@ object Demo extends JFXApp {
   
   val player = world.player
   
-  val renderingDistance = 50
+  val renderingDistance = 25
   
   /*
    * The textures to be used for drawing the walls.
    */
   val textures = Array(
-      new Image("src/bluestone.png"),
-      new Image("src/colorstone.png"),
-      new Image("src/greystone.png"),
-      new Image("src/mossy.png"),
-      new Image("src/purplestone.png"),
-      new Image("src/redbrick.png"),
-      new Image("src/wood.png"))
+//      new Image("src/colored-stone-pavement_black.jpg"),
+//      new Image("src/colored-stone-pavement_blue.jpg"),
+//      new Image("src/colored-stone-pavement.jpg"),
+//      new Image("src/RustPlain.jpg"),
+//      new Image("src/WoodPlanks.jpg"),
+      new Image("textures/redbrick.png"),
+      new Image("textures/bluestone.png"),
+      new Image("textures/colorstone.png"),
+      new Image("textures/mossy.png"),
+      new Image("textures/purplestone.png"),
+      new Image("textures/greystone.png"),
+      new Image("textures/wood.png"))
       
   /*
    * Allows the player to "pause" the demo. 
@@ -90,8 +95,8 @@ object Demo extends JFXApp {
    */
   def pause() = {
     canvas.cursor = Cursor.Default
-    timer.stop()
     paint()
+    timer.stop()
     //Font size and color are set so that it's clearly visible that the game is paused
     gc.setFill("white")
     gc.font = new Font(100)
@@ -102,8 +107,8 @@ object Demo extends JFXApp {
   
   def continue() = {
     canvas.cursor = Cursor.None
-    timer.start()
     this.paused = false
+    timer.start()
   }
   
   private var paused = false
@@ -124,7 +129,6 @@ object Demo extends JFXApp {
   
   /*
    * Sets the window from fullscreen to a smaller window
-   * 
    */
   def setSmallWindow() = {
     stage.setFullScreen(false)
@@ -144,7 +148,7 @@ object Demo extends JFXApp {
    * brightness level according to "distance".  
    */
   def getImageWithBrightness(image: Image, distance: Double) = {
-    val brightnessCoefficient = 1 / (0.3 * distance + 1)
+    val brightnessCoefficient = 1 / (0.2 * distance + 1)
     val width = image.getWidth().toInt
     val height = image.getHeight().toInt
     val pixelReader = image.getPixelReader()
@@ -161,7 +165,7 @@ object Demo extends JFXApp {
    * A precalculated array of multiple brightness levels for each texture.
    */
   val textureStripes: Array[Array[Image]] = Array.tabulate(textures.size)(tex => 
-        Array.tabulate(renderingDistance * 10 + 1)(distance =>
+        Array.tabulate(10 * renderingDistance  + 1)(distance =>
           getImageWithBrightness(textures(tex), 0.1 * distance)))
   
   /*
@@ -169,7 +173,7 @@ object Demo extends JFXApp {
    * according to player's distance from the wall
    */
   def getTextureBrightness(texNumber: Int, distance: Double) = {
-    textureStripes(texNumber)((distance * 10).toInt)
+    textureStripes(texNumber)((10 * distance).toInt)
   }
   
   /*
@@ -186,7 +190,7 @@ object Demo extends JFXApp {
      * to distance.
      */
     val walls = world.getWalls.filter(wall => (wall.v1 - player.getLocation).lengthSq < renderingDistance * renderingDistance)
-                              .sortBy(wall => (wall.v1 - player.getLocation).lengthSq + (wall.v2 - player.getLocation).lengthSq)
+                              .sortBy(wall => math.max((wall.v1 - player.getLocation).lengthSq, (wall.v2 - player.getLocation).lengthSq))
                               
     //Go through each vertical stripe of pixels in the screen
     for(x <- 0 until windowWidth) { 
@@ -200,8 +204,8 @@ object Demo extends JFXApp {
       var wallIndex = 0
       /*
        * Go through the possible intersections of walls starting from the wall closest
-       * to the player until a wall is drawn for this ray or none of the walls intersect
-       * with the ray.
+       * to the player until a wall is drawn for this ray or until all of the walls have 
+       * been gone through without finding an intersection
        */
       while(!wallDrawn && wallIndex < walls.size) { 
         val intersection = ray.lineIntersect(walls(wallIndex))
@@ -213,9 +217,9 @@ object Demo extends JFXApp {
             //The rectangle height is divided by math.cos(heading - rayHeading) to get rid of the fisheye effect
             val rectHeight = (1.5 * windowHeight / (distance * player.fov * math.cos(player.getHeading - rayHeading))).toInt
             
-//            val fakeLight = if(intersection._1.x % 1 == 0) 10 else 0
+            val fakeLight = if(intersection._1.x % 1 == 0) 5 else 0
             //Get the appropriate texture according to the distance
-            val texture = getTextureBrightness(intersection._2, distance)
+            val texture = getTextureBrightness(intersection._2, distance + fakeLight)
             /*
              * The x location of the intersection point in the texture.
              * This is required to be able to draw an appropriate one pixel
@@ -244,21 +248,20 @@ object Demo extends JFXApp {
   private var previousTime: Long = 0
   var i = 0
   val timer = AnimationTimer(t => { 
-    val elapsedTime = (t - previousTime) / 1000000000.0 //The elapsed time in seconds
+    val elapsedTime = math.min((t - previousTime) / 1000000000.0, 0.1) //The elapsed time in seconds
     previousTime = t
     if(i % 10 == 0) fps = (1 / elapsedTime).toInt
-    if(wPressed && !sPressed) {
-      if(aPressed && !dPressed) player.moveFL(elapsedTime)
-      else if(dPressed && !aPressed) player.moveFR(elapsedTime)
-      else player.moveForward(elapsedTime)
+    (wPressed, sPressed, aPressed, dPressed) match {
+      case (true, false, true, false) => player.moveFL(elapsedTime)
+      case (true, false, false, true) => player.moveFR(elapsedTime)
+      case (true, false, _, _) => player.moveForward(elapsedTime)
+      case (false, true, true, false) => player.moveBL(elapsedTime)
+      case (false, true, false, true) => player.moveBR(elapsedTime)
+      case (false, true, _, _) => player.moveBack(elapsedTime)
+      case (_, _, true, false) => player.moveLeft(elapsedTime)
+      case (_, _, false, true) => player.moveRight(elapsedTime)
+      case (_, _, _, _) => 
     }
-    else if(sPressed && !wPressed) {
-      if(aPressed && !dPressed) player.moveBL(elapsedTime)
-      else if(dPressed && !aPressed) player.moveBR(elapsedTime)
-      else player.moveBack(elapsedTime)
-    }
-    else if(aPressed && !dPressed) player.moveLeft(elapsedTime)
-    else if(dPressed && !aPressed) player.moveRight(elapsedTime)
     paint()
     gc.setFill(new Color("white"))
     gc.fillText(fps.toString, 10, 10, 100)
