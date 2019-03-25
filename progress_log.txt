@@ -1,22 +1,34 @@
 Projektin tilanne 12.3.
 
-World -luokkaan on suunniteltu tiedoston lukemiseen liittyviä poikkeustapauksia
-huomioiden väärän pituiset rivit, tyhjän tai täysin seinistä koostuvan maailman, 
-sekä vääränlaiset merkit tiedostossa. Käyttöliittymään on lisätty napin painalluksella
-muuttuva ikkunan koko sekä pause -ominaisuus. Tiedoston formaattia on muutettu siten,
-että se tukee useita tekstuureja.
+World -luokkaan on suunniteltu tiedoston lukemiseen liittyvia poikkeustapauksia
+huomioiden vaaran pituiset rivit, tyhjan tai taysin seinista koostuvan maailman,
+seka vaaranlaiset merkit tiedostossa. Kayttoliittymaan on lisatty napin painalluksella
+muuttuva ikkunan koko seka pause -ominaisuus. Tiedoston formaattia on muutettu siten,
+etta se tukee useita tekstuureja.
 
-Virhetilanteessa ohjelma heittää oikein poikkeukset niissä tilanteissa, joissa 
-poikkeus on suunniteltu heitettävän. Tekstuurit näkyvät käyttöliittymässä oikein.
+Virhetilanteessa ohjelma heittaa oikein poikkeukset niissa tilanteissa, joissa
+poikkeus on suunniteltu heitettavan. Tekstuurit nakyvat kayttoliittymassa oikein.
 
-Tekstuureja ja niiden kirkkausasteita ei voi laskea jatkuvasti ilman merkittäviä
-suorituskykyongelmia. Ongelma on tällä hetkellä korjattu alkeellisesti siten, että
-lasketaan tarvittavat tekstuurien siivut ja kirkkausasteet ennalta taulukoihin ja 
-valitaan taulukosta sopiva siivu ajon aikana jokaiselle piirrettävälle seinälle.
+Tekstuureja ja niiden kirkkausasteita ei voi laskea jatkuvasti ilman merkittavia
+suorituskykyongelmia. Ongelma on talla hetkella korjattu alkeellisesti siten, etta
+lasketaan tarvittavat tekstuurien siivut ja kirkkausasteet ennalta taulukoihin ja
+valitaan taulukosta sopiva siivu ajon aikana jokaiselle piirrettavalle seinalle.
 Jos valitsee tekstuurien resoluutioksi jotain suurempaa kuin 64 x 64, niin
-muisti loppuu kesken ennen kuin käyttöliittymän ikkuna ehtii edes tulla näkyviin.
+muisti loppuu kesken ennen kuin kayttoliittyman ikkuna ehtii edes tulla nakyviin.
 
-Käytetty työmäärä suunnitelmademon jälkeen on n. 15 tuntia.
+Kaytetty tyomaara suunnitelmademon jalkeen on n. 15 tuntia.
 
-Olen projektisuunnitelman ennustetta hieman edellä. Tekstuurien toteuttaminen ei 
-ollut suunnitelmassa vielä tässä vaiheessa. 
+Olen projektisuunnitelman ennustetta hieman edella. Tekstuurien toteuttaminen ei
+ollut suunnitelmassa viela tassa vaiheessa.
+
+25.3.
+
+Kaynnistysolion toiminnallisuutta on muutettu siten, etta enaan ei ole tarvetta laskea valmiita tekstuurien siivuja taulukkoon, vaan tekstuurista piirretaan sopiva osa scalafx:n valmiin metodin avulla. Lisaksi paint -metodia on paivitetty siten, etta se lajittelee seinat alussa etaisyyden mukaan, joista se etsii ensimmaisen leikkauspisteen alkaen lahimmasta seinasta. Nain saastetaan turhaa leikkauspisteiden laskentaa.
+
+Ohjelmaa ei ole mitenkaan erityisemmin testailtu. Tekstuurien piirtaminen nayttaa edelleen toimivan oikein muutoksien jalkeen. 
+
+Scalafx:n valmis tyokalu kuvan kirkkauden saatamista varten ei toimi animaatiossa ilman, etta se heittaa poikkeuksia. Ongelma voidaan kiertaa laskemalla tekstuureille ennalta useita kirkkausasteita. Tasta kuitenkin seuraa toinen ongelma; tekstuurien resoluutio ei voi olla kovin suuri ilman etta muisti loppuu kesken tai ohjelman kaynnistys viivastyy merkittavasti. 
+
+Kaytetty tyomaara talla valilla on n.5 tuntia
+
+Olen projektisuunitelman ennusteen tasalla.
