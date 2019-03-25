@@ -6,6 +6,8 @@ version := "1.0"
  
 // Version of Scala used by the project
 scalaVersion := "2.12.3"
+
+fork in run := true
  
 // Add dependency on ScalaFX library
 libraryDependencies += "org.scalafx" %% "scalafx" % "8.0.144-R12"

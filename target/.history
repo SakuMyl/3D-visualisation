@@ -67,3 +67,7 @@ compile
 ~run
 compile
 ~run
+run
+~run
+run
+exit

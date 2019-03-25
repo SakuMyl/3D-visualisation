@@ -79,13 +79,13 @@ object Demo extends JFXApp {
 //      new Image("src/colored-stone-pavement.jpg"),
 //      new Image("src/RustPlain.jpg"),
 //      new Image("src/WoodPlanks.jpg"),
-      new Image("src/main/resources/textures/redbrick.png"),
-      new Image("src/main/resources/textures/bluestone.png"),
-      new Image("src/main/resources/textures/colorstone.png"),
-      new Image("src/main/resources/textures/mossy.png"),
-      new Image("src/main/resources/textures/purplestone.png"),
-      new Image("src/main/resources/textures/greystone.png"),
-      new Image("src/main/resources/textures/wood.png"))
+      new Image("/textures/redbrick.png"),
+      new Image("/textures/bluestone.png"),
+      new Image("/textures/colorstone.png"),
+      new Image("/textures/mossy.png"),
+      new Image("/textures/purplestone.png"),
+      new Image("/textures/greystone.png"),
+      new Image("/textures/wood.png"))
       
   /*
    * Allows the player to "pause" the demo. 
