@@ -23,11 +23,19 @@ ollut suunnitelmassa viela tassa vaiheessa.
 
 25.3.
 
-Kaynnistysolion toiminnallisuutta on muutettu siten, etta enaan ei ole tarvetta laskea valmiita tekstuurien siivuja taulukkoon, vaan tekstuurista piirretaan sopiva osa scalafx:n valmiin metodin avulla. Lisaksi paint -metodia on paivitetty siten, etta se lajittelee seinat alussa etaisyyden mukaan, joista se etsii ensimmaisen leikkauspisteen alkaen lahimmasta seinasta. Nain saastetaan turhaa leikkauspisteiden laskentaa.
+Kaynnistysolion toiminnallisuutta on muutettu siten, etta enaan ei ole tarvetta laskea 
+valmiita tekstuurien siivuja taulukkoon, vaan tekstuurista piirretaan sopiva osa scalafx:n
+valmiin metodin avulla. Lisaksi paint -metodia on paivitetty siten, etta se lajittelee seinat
+alussa etaisyyden mukaan, joista se etsii ensimmaisen leikkauspisteen alkaen lahimmasta
+seinasta. Nain saastetaan turhaa leikkauspisteiden laskentaa.
 
-Ohjelmaa ei ole mitenkaan erityisemmin testailtu. Tekstuurien piirtaminen nayttaa edelleen toimivan oikein muutoksien jalkeen. 
+Ohjelmaa ei ole mitenkaan erityisemmin testailtu. Tekstuurien piirtaminen nayttaa edelleen 
+toimivan oikein muutoksien jalkeen. 
 
-Scalafx:n valmis tyokalu kuvan kirkkauden saatamista varten ei toimi animaatiossa ilman, etta se heittaa poikkeuksia. Ongelma voidaan kiertaa laskemalla tekstuureille ennalta useita kirkkausasteita. Tasta kuitenkin seuraa toinen ongelma; tekstuurien resoluutio ei voi olla kovin suuri ilman etta muisti loppuu kesken tai ohjelman kaynnistys viivastyy merkittavasti. 
+Scalafx:n valmis tyokalu kuvan kirkkauden saatamista varten ei toimi animaatiossa ilman, 
+etta se heittaa poikkeuksia. Ongelma voidaan kiertaa laskemalla tekstuureille ennalta useita
+kirkkausasteita. Tasta kuitenkin seuraa toinen ongelma; tekstuurien resoluutio ei voi olla kovin
+suuri ilman etta muisti loppuu kesken tai ohjelman kaynnistys viivastyy merkittavasti. 
 
 Kaytetty tyomaara talla valilla on n.5 tuntia
 
