@@ -1,4 +1,4 @@
-package src
+package main.scala
 
 import scalafx.scene.canvas.Canvas
 import scalafx.scene.image.Image
@@ -24,7 +24,7 @@ class Line(val v1: Vec, val v2: Vec) {
    * s (when solving for t) and t (when solving for s)
    * s * u x u = 0 and t * v x v = 0
    */
-  def lineIntersect(wall: Wall) = {
+  def lineIntersect(wall: Line) = {
     val u = this.v2 - this.v1
     val v = wall.v2 - wall.v1
     
@@ -46,7 +46,7 @@ class Line(val v1: Vec, val v2: Vec) {
       val t1 = t0 + (v.dotProduct(u) / (u.dotProduct(u)))
       
       if((t0 <= 1 && t1 >= 0) || (t0 >= 0 && t1 <= 1)) {
-        Some((wall.v1, wall.tex))
+        Some(wall.v1)
       }
       else {
         None
@@ -58,7 +58,7 @@ class Line(val v1: Vec, val v2: Vec) {
       
       val epsilon = 0.000001
       if(t > -epsilon && t < 1 + epsilon && s > -epsilon && s < 1 + epsilon) {
-        Some((new Vec(wall.v1.x + t * v.x, wall.v1.y + t * v.y), wall.tex))
+        Some(new Vec(wall.v1.x + t * v.x, wall.v1.y + t * v.y))
       }
       else {
         None

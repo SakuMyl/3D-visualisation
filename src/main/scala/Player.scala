@@ -1,4 +1,4 @@
-package src
+package main.scala
 
 class Player(location: Vec, heading: Double, val world: World) {
   

@@ -1,4 +1,4 @@
-package src
+package main.scala
 
 class Vec(val x: Double, val y: Double) {
   

@@ -1,8 +1,9 @@
-package src
+package main.scala
 
 import java.io.BufferedReader
 import java.io.FileReader
 import scalafx.scene.image.Image
+import scala.io.Source
 
 class World(textFile: String) {
   
@@ -10,12 +11,16 @@ class World(textFile: String) {
   
   def getWalls = this.walls
   
-  val reader = new BufferedReader(new FileReader(textFile))
+  val reader = Source.fromInputStream(getClass.getResourceAsStream(textFile)).getLines
   
+  //Keeps track of the line index
   var lineCursor = 0
+  //Keeps track of the character index in a line
   var charCursor = 0
-  var line = reader.readLine().trim
+  //First line
+  var line = reader.next().trim
   var length = line.length
+  //The array to which the map characters will be stored
   var arr = Array[Array[Char]]()
   var done = false
   while(!done) {
@@ -23,18 +28,29 @@ class World(textFile: String) {
      * In case there are empty rows in the beginning of the file,
      * they will be skipped until a non-empty row is found. 
      * File reading will stop when an empty row is encountered or 
-     * the file ends.
+     * the file ends. 
      */
     if(line.length == length || length == 0) {
       if(length == 0) length = line.length
       try {
+        /*
+         * If a line is empty in the beginning of the file,
+         * it will be skipped.
+         */
         if(length != 0) {
           charCursor = 0
+          //Append the current line to the array
           arr = arr :+ line.toCharArray()
+          //Go through every character in a line
           for(c <- line) {
             if(c == '.') {
               arr(lineCursor)(charCursor) = '.'
             }
+            /*
+             * c has to be a valid texture number, 
+             * i.e. a number that corresponds to some
+             * texture number
+             */
             else if((0 to 7).contains(c.asDigit)) {
               arr(lineCursor)(charCursor) = c
             }
@@ -45,17 +61,27 @@ class World(textFile: String) {
           }
           lineCursor += 1 
         }
-        line = reader.readLine().trim
+        line = reader.next().trim
       } catch {
+        /*
+         * When the file ends, the reader will throw a NullPointerException,
+         * which is caught here and the reader is closed. This can happen
+         * only if the last line in the file is not empty. 
+         */
         case e: NullPointerException =>
           done = true
-          reader.close()
       }
+      /*
+       * In case some a row with a different length is encountered,
+       * an exception will be thrown
+       */
     } else if(line.length != 0){
       throw new InvalidFileException("Some rows were of different length")
+      /*
+       * If an empty line is encountered in the file, the reader will be closed
+       */
     } else {
       done = true 
-      reader.close()
     }
     
   }

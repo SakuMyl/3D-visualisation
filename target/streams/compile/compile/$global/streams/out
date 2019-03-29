@@ -1,0 +1,10 @@
+[0m[[0m[31merror[0m] [0m[0mC:\Users\mylly\git\3d-visualisointi\src\main\scala\UnitTests.scala:3:12: object scalatest is not a member of package org[0m
+[0m[[0m[31merror[0m] [0m[0mimport org.scalatest.FlatSpec[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\mylly\git\3d-visualisointi\src\main\scala\UnitTests.scala:5:25: not found: type FlatSpec[0m
+[0m[[0m[31merror[0m] [0m[0mclass UnitTests extends FlatSpec{[0m
+[0m[[0m[31merror[0m] [0m[0m                        ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\mylly\git\3d-visualisointi\src\main\scala\UnitTests.scala:7:19: value should is not a member of String[0m
+[0m[[0m[31merror[0m] [0m[0m  "lineIntersect" should "return true" in {[0m
+[0m[[0m[31merror[0m] [0m[0m                  ^[0m
+[0m[[0m[31merror[0m] [0m[0mthree errors found[0m

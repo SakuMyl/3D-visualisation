@@ -1,4 +1,4 @@
-package src
+package main.scala
 
 import scalafx.Includes._
 import scalafx.application.JFXApp
@@ -55,14 +55,14 @@ object Demo extends JFXApp {
    */
   val world: World = {
     try {
-      new World("src/main/resources/maps/map.txt")
+      new World("/main/resources/maps/map.txt")
     } catch {
       case e: InvalidFileException =>
         new Alert(AlertType.Error) {
           headerText = "Error when loading map, default map loaded instead"
           contentText = e.getMessage
         }.showAndWait() 
-        new World("src/main/resources/maps/Default map.txt")
+        new World("/main/resources/maps/Default map.txt")
     }
   }
   
@@ -79,13 +79,13 @@ object Demo extends JFXApp {
 //      new Image("src/colored-stone-pavement.jpg"),
 //      new Image("src/RustPlain.jpg"),
 //      new Image("src/WoodPlanks.jpg"),
-      new Image("/textures/redbrick.png"),
-      new Image("/textures/bluestone.png"),
-      new Image("/textures/colorstone.png"),
-      new Image("/textures/mossy.png"),
-      new Image("/textures/purplestone.png"),
-      new Image("/textures/greystone.png"),
-      new Image("/textures/wood.png"))
+      new Image("/main/resources/textures/redbrick.png"),
+      new Image("/main/resources/textures/bluestone.png"),
+      new Image("/main/resources/textures/colorstone.png"),
+      new Image("/main/resources/textures/mossy.png"),
+      new Image("/main/resources/textures/purplestone.png"),
+      new Image("/main/resources/textures/greystone.png"),
+      new Image("/main/resources/textures/wood.png"))
       
   /*
    * Allows the player to "pause" the demo. 
@@ -96,6 +96,7 @@ object Demo extends JFXApp {
   def pause() = {
     canvas.cursor = Cursor.Default
     paint()
+    //Stop the timer so that the image stays still and doesn't respond to mouse movements
     timer.stop()
     //Font size and color are set so that it's clearly visible that the game is paused
     gc.setFill("white")
@@ -105,6 +106,9 @@ object Demo extends JFXApp {
     this.paused = true
   }
   
+  /*
+   * Allows continuing after a pause
+   */
   def continue() = {
     canvas.cursor = Cursor.None
     this.paused = false
@@ -137,6 +141,11 @@ object Demo extends JFXApp {
     stage.setWidth(windowWidth)
     stage.setHeight(windowHeight)
     stage.centerOnScreen()
+    /*
+     * The demo has to paused and continued so that the
+     * "PAUSED" text will reposition itself to the center 
+     * of the screen
+     */
     if(paused) {
       continue()
       pause()
@@ -145,7 +154,8 @@ object Demo extends JFXApp {
   
   /*
    * Create a new image from an existing one with a different 
-   * brightness level according to "distance".  
+   * brightness level according to "distance". That is, the 
+   * distance from the player to a point of a wall.
    */
   def getImageWithBrightness(image: Image, distance: Double) = {
     val brightnessCoefficient = 1 / (0.2 * distance + 1)
@@ -214,24 +224,25 @@ object Demo extends JFXApp {
        * been gone through without finding an intersection
        */
       while(!wallDrawn && wallIndex < walls.size) { 
-        val intersection = ray.lineIntersect(walls(wallIndex))
+        val wall = walls(wallIndex)
+        val intersection = ray.lineIntersect(wall)
         wallIndex += 1
         intersection match {
           case Some(intersection) => 
             //The distance from the player to the intersection point
-            val distance = math.sqrt((ray.v1 - intersection._1).lengthSq)
+            val distance = math.sqrt((ray.v1 - intersection).lengthSq)
             //The rectangle height is divided by math.cos(heading - rayHeading) to get rid of the fisheye effect
             val rectHeight = (1.5 * windowHeight / (distance * player.fov * math.cos(player.getHeading - rayHeading))).toInt
             
             //Get the appropriate texture according to the distance
-            val texture = getTextureBrightness(intersection._2, distance)
+            val texture = getTextureBrightness(wall.tex, distance)
             
             /*
              * The x location of the intersection point in the texture.
              * This is required to be able to draw an appropriate one pixel
              * wide stripe of the texture
              */
-            val textureX = ((intersection._1.x % 1 + intersection._1.y % 1).abs * texture.getWidth()).toInt
+            val textureX = ((intersection.x % 1 + intersection.y % 1).abs * texture.getWidth()).toInt
             //Draw the one pixel wide stripe of the wall
             gc.drawImage(texture, textureX, 0, 1, texture.getHeight(), x, (windowHeight - rectHeight) / 2, 1, rectHeight)
             //Set wallDrawn true to exit the while loop
