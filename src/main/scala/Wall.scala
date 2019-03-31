@@ -3,6 +3,7 @@ package main.scala
 import scalafx.scene.canvas.Canvas
 import scalafx.scene.image.Image
 
+//Test
 /*
  * A wall is practically a line with the addition
  * of a number of the texture it should be drawn with.
