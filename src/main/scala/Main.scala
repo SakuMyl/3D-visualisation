@@ -27,7 +27,7 @@ object Demo extends JFXApp {
    */
   private var windowWidth = 1280
   private var windowHeight = 720
-  
+  //Hello
   /*
    * The canvas to draw graphics on
    */
