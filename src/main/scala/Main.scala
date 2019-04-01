@@ -1,5 +1,6 @@
 package main.scala
 
+//Test
 import scalafx.Includes._
 import scalafx.application.JFXApp
 import scalafx.scene.canvas.Canvas
