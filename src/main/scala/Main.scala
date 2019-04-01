@@ -31,7 +31,8 @@ object Demo extends JFXApp {
   
   private var windowWidth = bounds.getWidth().toInt
   private var windowHeight = bounds.getHeight().toInt
-  
+  println(windowWidth)
+  println(windowHeight)
   /*
    * The canvas to draw graphics on
    */
