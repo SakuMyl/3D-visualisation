@@ -109,3 +109,7 @@ package
 test
 run
 package
+run
+repl
+console
+run

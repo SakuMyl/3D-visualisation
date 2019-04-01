@@ -11,7 +11,7 @@ class World(textFile: String) {
   
   def getWalls = this.walls
   
-  val reader = Source.fromInputStream(getClass.getResourceAsStream(textFile)).getLines
+  val reader = Source.fromFile(textFile).getLines
   
   //Keeps track of the line index
   var lineCursor = 0

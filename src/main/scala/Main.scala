@@ -27,6 +27,7 @@ object Demo extends JFXApp {
    */
   private var windowWidth = 1280
   private var windowHeight = 720
+  
   /*
    * The canvas to draw graphics on
    */
@@ -54,14 +55,14 @@ object Demo extends JFXApp {
    */
   val world: World = {
     try {
-      new World("/main/resources/maps/map.txt")
+      new World("src/main/resources/maps/map.txt")
     } catch {
       case e: InvalidFileException =>
         new Alert(AlertType.Error) {
           headerText = "Error when loading map, default map loaded instead"
           contentText = e.getMessage
         }.showAndWait() 
-        new World("/main/resources/maps/Default map.txt")
+        new World("src/main/resources/maps/Default map.txt")
     }
   }
   
@@ -72,19 +73,21 @@ object Demo extends JFXApp {
   /*
    * The textures to be used for drawing the walls.
    */
+  val path = "file:src/main/resources/textures"
   val textures = Array(
+      
 //      new Image("src/colored-stone-pavement_black.jpg"),
 //      new Image("src/colored-stone-pavement_blue.jpg"),
 //      new Image("src/colored-stone-pavement.jpg"),
 //      new Image("src/RustPlain.jpg"),
 //      new Image("src/WoodPlanks.jpg"),
-      new Image("/main/resources/textures/redbrick.png"),
-      new Image("/main/resources/textures/bluestone.png"),
-      new Image("/main/resources/textures/colorstone.png"),
-      new Image("/main/resources/textures/mossy.png"),
-      new Image("/main/resources/textures/purplestone.png"),
-      new Image("/main/resources/textures/greystone.png"),
-      new Image("/main/resources/textures/wood.png"))
+      new Image(path + "/redbrick.png"),
+      new Image(path + "/bluestone.png"),
+      new Image(path + "/colorstone.png"),
+      new Image(path + "/mossy.png"),
+      new Image(path + "/purplestone.png"),
+      new Image(path + "/greystone.png"),
+      new Image(path + "/wood.png"))
       
   /*
    * Allows the player to "pause" the demo. 
