@@ -20,14 +20,17 @@ import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control.ButtonType
 import scalafx.scene.image.Image
 import scalafx.scene.image.WritableImage
+import javafx.stage.Screen
 
 object Demo extends JFXApp {
   
   /*
    * The window is set to fullscreen dimensions
    */
-  private var windowWidth = 1280
-  private var windowHeight = 720
+  val bounds = Screen.getPrimary().getBounds()
+  
+  private var windowWidth = bounds.getWidth().toInt
+  private var windowHeight = bounds.getHeight().toInt
   
   /*
    * The canvas to draw graphics on
