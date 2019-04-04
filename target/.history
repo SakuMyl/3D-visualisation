@@ -113,3 +113,5 @@ run
 repl
 console
 run
+package
+run
