@@ -79,11 +79,11 @@ object Demo extends JFXApp {
   val path = "file:src/main/resources/textures"
   val textures = Array(
       
-//      new Image("src/colored-stone-pavement_black.jpg"),
-//      new Image("src/colored-stone-pavement_blue.jpg"),
-//      new Image("src/colored-stone-pavement.jpg"),
-//      new Image("src/RustPlain.jpg"),
-//      new Image("src/WoodPlanks.jpg"),
+//      new Image(path + "/colored-stone-pavement_black.jpg"),
+//      new Image(path + "/colored-stone-pavement_blue.jpg"),
+//      new Image(path + "/colored-stone-pavement.jpg"),
+//      new Image(path + "/RustPlain.jpg"),
+//      new Image(path + "/WoodPlanks.jpg"),
       new Image(path + "/redbrick.png"),
       new Image(path + "/bluestone.png"),
       new Image(path + "/colorstone.png"),
@@ -126,8 +126,8 @@ object Demo extends JFXApp {
    * Allows setting the window back to fullscreen
    */
   def setFullScreen() = {
-    this.windowWidth = 1280
-    this.windowHeight = 720
+    this.windowWidth = bounds.getWidth().toInt
+    this.windowHeight = bounds.getHeight().toInt
     stage.setFullScreen(true)
     //Avoid messing up the location of the "paused" text in case the demo is paused
     if(paused) {
@@ -141,8 +141,8 @@ object Demo extends JFXApp {
    */
   def setSmallWindow() = {
     stage.setFullScreen(false)
-    this.windowWidth = 860
-    this.windowHeight = 540
+    this.windowWidth /= 2
+    this.windowHeight /= 2
     stage.setWidth(windowWidth)
     stage.setHeight(windowHeight)
     stage.centerOnScreen()

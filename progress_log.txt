@@ -40,3 +40,18 @@ suuri ilman etta muisti loppuu kesken tai ohjelman kaynnistys viivastyy merkitta
 Kaytetty tyomaara talla valilla on n.5 tuntia
 
 Olen projektisuunitelman ennusteen tasalla.
+
+Projektin tilanne 8.4.
+
+Suunnitelman mukaiset yksikkotestit on tehty lineIntersect -metodille. Ohjelma lahtee kayntiin
+nyt seka Eclipsesta etta komentorivilla sbt:lla. Käyttöliittymän ikkunan koko skaalautuu oikein
+näytön koosta riippumatta. 
+
+lineIntersect -metodi toimii oikein. Kayttoliittyman ikkunan skaalautuvuutta eri resoluutioilla 
+on kokeiltu kahdella eri resoluutiolla ja havaittu toimivaksi. 
+
+Suurimmat ongelmat ovat samat kuin viime logissa. 
+
+Kaytetty tyomaara talla valilla on n. 5 tuntia
+
+Olen projektisuunnitelman ennusteen tasalla.

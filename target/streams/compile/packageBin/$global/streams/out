@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [0m[[0m[0minfo[0m] [0m[0mPackaging C:\Users\mylly\git\3d-visualisointi\target\scala-2.12\hello-sbt_2.12-1.0.jar ...[0m
 [0m[[0m[0mdebug[0m] [0m[0mInput file mappings:[0m
 [0m[[0m[0mdebug[0m] [0m[0m	textures\oldwood_1.jpg[0m
@@ -65,3 +66,6 @@
 [0m[[0m[0mdebug[0m] [0m[0m	main\scala\InvalidFileException.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\mylly\git\3d-visualisointi\target\scala-2.12\classes\main\scala\InvalidFileException.class[0m
 [0m[[0m[0minfo[0m] [0m[0mDone packaging.[0m
+=======
+[0m[[0m[0mdebug[0m] [0m[0mJar uptodate: C:\Users\Saku\harkat\3D-visualisation\target\scala-2.12\hello-sbt_2.12-1.0.jar[0m
+>>>>>>> d531e6d14fcea6a7d38545fd6c77be3080db90aa
