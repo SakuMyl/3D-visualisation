@@ -1,9 +1,0 @@
-bin/
-target/
-project/
-.cache
-.cache-main
-.classpath
-.gitignore
-.project
-asdf.iml
