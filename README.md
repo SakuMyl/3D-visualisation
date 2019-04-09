@@ -1,3 +1,3 @@
-﻿# 3D-visualisointi
+﻿# 3D-visualisation
 
 Ray casting with scalafx.
