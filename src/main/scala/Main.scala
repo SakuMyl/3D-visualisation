@@ -90,7 +90,8 @@ object Demo extends JFXApp {
       new Image(path + "/mossy.png"),
       new Image(path + "/purplestone.png"),
       new Image(path + "/greystone.png"),
-      new Image(path + "/wood.png"))
+      new Image(path + "/wood.png")
+      )
       
   /*
    * Allows the player to "pause" the demo. 
