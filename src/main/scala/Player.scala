@@ -11,6 +11,7 @@ class Player(location: Vec, heading: Double, val world: World) {
   val fovInDegrees = 80 //Field of view in degrees
   val fov = math.toRadians(fovInDegrees) //Converted to radians
   val sensitivity = 5 //Determines how much moving the mouse turns the camera. 1 is very low, 10 is very high
+  val movingSpeed = 3 //The moving speed of the player
   
   /*
    * Turns the camera by changing the player's heading.
@@ -44,8 +45,11 @@ class Player(location: Vec, heading: Double, val world: World) {
    * through walls.
    */
   def move(xChange: Double, yChange: Double, elapsedTime: Double) = {
-    //The multiplier 3 is here to make movement faster 
-    val coEfficient = 3 * elapsedTime
+    /*
+     * How much the player moves depends on the time elapsed
+     * and the moving speed.
+     */
+    val coEfficient = movingSpeed * elapsedTime
     /*
      * For all walls near the player, check whether the player is trying to move through them before allowing the change of location.
      * The change of location is done for both x- and y-components separately to allow the player to "slide" on walls.

@@ -28,7 +28,6 @@ class World(textFile: String) {
     new Image(path + "/mossy.png"),
     new Image(path + "/purplestone.png"),
     new Image(path + "/greystone.png"),
-    new Image(path + "/wood.png")
   )
       
   val reader = Source.fromFile(textFile).getLines
@@ -43,7 +42,7 @@ class World(textFile: String) {
   //The array to which the map characters will be stored
   var arr = Array[Array[Char]]()
   var done = false
-  while(!done) {
+  while(reader.hasNext && !done) {
     /* 
      * In case there are empty rows in the beginning of the file,
      * they will be skipped until a non-empty row is found. 
@@ -63,6 +62,9 @@ class World(textFile: String) {
           arr = arr :+ line.toCharArray()
           //Go through every character in a line
           for(c <- line) {
+            /*
+             * A dot means an empty space with no wall in the map
+             */
             if(c == '.') {
               arr(lineCursor)(charCursor) = '.'
             }
@@ -83,13 +85,9 @@ class World(textFile: String) {
         }
         line = reader.next().trim
       } catch {
-        /*
-         * When the file ends, the reader will throw a NullPointerException,
-         * which is caught here and the reader is closed. This can happen
-         * only if the last line in the file is not empty. 
-         */
-        case e: NullPointerException =>
-          done = true
+        case e: Exception => 
+          println("Something went wrong")
+          e.printStackTrace()
       }
       /*
        * In case some a row with a different length is encountered,
@@ -109,32 +107,35 @@ class World(textFile: String) {
    * To make sure there is empty space in the world i.e. it isn't full of walls
    * and that the map isn't completely empty.
    */
-  if(arr.forall(_.forall(c => c != '.'))) throw new InvalidFileException("No empty space found in map (only walls) or map was empty")
+  if(!arr.exists(_.exists(c => c == '.'))) {
+    throw new InvalidFileException("No empty space found in map (only walls) or map was empty")
+  }
   
-  //Map width and height including padding 
-  val mapWidth = charCursor + 2
-  val mapHeight = lineCursor + 2
   /*
    * Padding the map with walls in all sides to make sure the 
    * player's movement is limited to a closed area
    */
   arr = arr.map(row => '0' +: row :+ '0')
-  val pad = ("0" * mapWidth).toCharArray()
+  val pad = ("0" * arr(0).size).toCharArray()
   arr = pad +: arr :+ pad
   
   /*
    * Create walls to the world according to the characters 
    * in the 2-dimensional array. 
    */
-  arr.indices.foreach{rowIndex => arr(rowIndex).indices.foreach{charIndex =>
-    if(arr(rowIndex)(charIndex) != '.') {
+  def createWalls(arr: Array[Array[Char]]) = {
+    arr.indices.foreach{rowIndex => arr(rowIndex).indices.foreach{charIndex =>
+      if(arr(rowIndex)(charIndex) != '.') {
         val tex = arr(rowIndex)(charIndex).asDigit
         val vecs = Vector(new Vec(charIndex, -rowIndex), new Vec(charIndex + 1, -rowIndex), 
                           new Vec(charIndex + 1, -rowIndex - 1), new Vec(charIndex, -rowIndex - 1))
-        walls = walls ++: Vector(new Wall(vecs(0), vecs(1), tex), new Wall(vecs(1), vecs(2), tex), new Wall(vecs(2), vecs(3), tex), new Wall(vecs(3), vecs(0), tex))
+        this.walls = this.walls ++: Vector(new Wall(vecs(0), vecs(1), tex), new Wall(vecs(1), vecs(2), tex), 
+                                           new Wall(vecs(2), vecs(3), tex), new Wall(vecs(3), vecs(0), tex))
       }
-  }}
-  
+    }}
+  }
+  createWalls(arr)
+    
   var wallsToRemove = Vector[Wall]()
   
   /* Remove walls that are covered by other walls to reduce performance issues,

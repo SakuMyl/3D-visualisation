@@ -8,7 +8,6 @@ import scalafx.scene.input.KeyEvent
 import scalafx.animation.AnimationTimer
 import scalafx.scene.input.MouseEvent
 import scalafx.scene.input.KeyCode
-import java.awt.Robot
 import scalafx.scene.Cursor
 import scalafx.scene.paint.Color
 import scalafx.scene.input.KeyCodeCombination
@@ -20,16 +19,16 @@ import scalafx.scene.control.ButtonType
 import scalafx.scene.image.Image
 import scalafx.scene.image.WritableImage
 import javafx.stage.Screen
+import scalafx.scene.text.TextAlignment
+import com.sun.glass.ui.Robot
 
 object Demo extends JFXApp {
   
-  /*
-   * The window is set to fullscreen dimensions
-   */
+  //Get the width and height of the screen
   val bounds = Screen.getPrimary().getBounds()
-  
   private var windowWidth = bounds.getWidth().toInt
   private var windowHeight = bounds.getHeight().toInt
+  
   /*
    * The canvas to draw graphics on
    */
@@ -41,8 +40,8 @@ object Demo extends JFXApp {
     fullScreen = true
     //The window is set to be unresizable to avoid messing up the canvas
     resizable = false
+    //Avoid messing with the default exit key
     fullScreenExitKey = KeyCombination.NO_MATCH
-    title = "3D-visualisation"
     scene = new Scene {
       content = canvas
       //No cursor makes the experience better
@@ -53,7 +52,7 @@ object Demo extends JFXApp {
    * The world is created from the text file.
    * If there is something wrong with the file,
    * an alert pops up notifying about the error
-   * and default map is loaded instead.
+   * and the default map is loaded instead.
    */
   val world: World = {
     try {
@@ -87,8 +86,9 @@ object Demo extends JFXApp {
     timer.stop()
     //Font size and color are set so that it's clearly visible that the game is paused
     gc.setFill("white")
+    gc.setTextAlign(TextAlignment.Center)
     gc.font = new Font(100)
-    gc.fillText("PAUSED", stage.getWidth() / 2 - 175, stage.getHeight() / 2 + 25)
+    gc.fillText("PAUSED", stage.getWidth() / 2, stage.getHeight() / 2)
     gc.font = Font.default
     this.paused = true
   }
@@ -142,7 +142,9 @@ object Demo extends JFXApp {
   /*
    * Create a new image from an existing one with a different 
    * brightness level according to "distance". That is, the 
-   * distance from the player to a point of a wall.
+   * distance from the player to a point of a wall. This is 
+   * necessary for creating multiple brightness levels for 
+   * the textures.
    */
   def getImageWithBrightness(image: Image, distance: Double) = {
     val brightnessCoefficient = 1 / (0.2 * distance + 1)
@@ -195,7 +197,9 @@ object Demo extends JFXApp {
     /*
      * The walls are filtered out if their distance to the player is 
      * greater than the rendering distance and then sorted according
-     * to distance.
+     * to distance. The distance, in this case, is defined as the 
+     * distance from the player to the vertex of a wall that is further
+     * away from the player.
      */
     val walls = world.getWalls.filter(wall => (wall.v1 - player.getLocation).lengthSq < renderingDistance * renderingDistance)
                               .sortBy(wall => math.max((wall.v1 - player.getLocation).lengthSq, (wall.v2 - player.getLocation).lengthSq))
@@ -216,6 +220,7 @@ object Demo extends JFXApp {
        * been gone through without finding an intersection
        */
       while(!wallDrawn && wallIndex < walls.size) { 
+        //Select the wall with the current index
         val wall = walls(wallIndex)
         val intersection = ray.lineIntersect(wall)
         wallIndex += 1
@@ -289,7 +294,7 @@ object Demo extends JFXApp {
    * moved continuously in one direction without the movement 
    * suddenly stopping due to the cursor being out of the window
    */
-  val robot = new Robot
+  val robot = com.sun.glass.ui.Application.GetApplication.createRobot()
   
   val screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize()
   val screenHeight = screenSize.getHeight().toInt
@@ -303,7 +308,7 @@ object Demo extends JFXApp {
     if(!paused) {
       val dx = e.screenX - (stage.getX() + stage.getWidth() / 2)
       player.turn(dx / 2000)
-      robot.mouseMove(screenWidth / 2, screenHeight / 2)
+      robot.mouseMove((stage.getX() + stage.getWidth() / 2).toInt, (stage.getY() + stage.getHeight() / 2).toInt)
     }
   }}
 
