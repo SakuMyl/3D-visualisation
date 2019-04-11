@@ -20,7 +20,6 @@ import scalafx.scene.image.Image
 import scalafx.scene.image.WritableImage
 import javafx.stage.Screen
 import scalafx.scene.text.TextAlignment
-import com.sun.glass.ui.Robot
 
 object Demo extends JFXApp {
   
@@ -296,9 +295,6 @@ object Demo extends JFXApp {
    */
   val robot = com.sun.glass.ui.Application.GetApplication.createRobot()
   
-  val screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize()
-  val screenHeight = screenSize.getHeight().toInt
-  val screenWidth = screenSize.getWidth().toInt
   canvas.setOnMouseMoved{e => {
     /*
      * If the game is paused, the cursor can be moved out
