@@ -1,6 +1,5 @@
 package main.scala
 
-//Test
 import scalafx.Includes._
 import scalafx.application.JFXApp
 import scalafx.scene.canvas.Canvas
@@ -9,7 +8,6 @@ import scalafx.scene.input.KeyEvent
 import scalafx.animation.AnimationTimer
 import scalafx.scene.input.MouseEvent
 import scalafx.scene.input.KeyCode
-import java.awt.Robot
 import scalafx.scene.Cursor
 import scalafx.scene.paint.Color
 import scalafx.scene.input.KeyCodeCombination
@@ -21,16 +19,16 @@ import scalafx.scene.control.ButtonType
 import scalafx.scene.image.Image
 import scalafx.scene.image.WritableImage
 import javafx.stage.Screen
+import scalafx.scene.text.TextAlignment
+import com.sun.glass.ui.Robot
 
 object Demo extends JFXApp {
   
-  /*
-   * The window is set to fullscreen dimensions
-   */
+  //Get the width and height of the screen
   val bounds = Screen.getPrimary().getBounds()
-  
   private var windowWidth = bounds.getWidth().toInt
   private var windowHeight = bounds.getHeight().toInt
+  
   /*
    * The canvas to draw graphics on
    */
@@ -42,8 +40,8 @@ object Demo extends JFXApp {
     fullScreen = true
     //The window is set to be unresizable to avoid messing up the canvas
     resizable = false
+    //Avoid messing with the default exit key
     fullScreenExitKey = KeyCombination.NO_MATCH
-    title = "3D-visualisation"
     scene = new Scene {
       content = canvas
       //No cursor makes the experience better
@@ -54,7 +52,7 @@ object Demo extends JFXApp {
    * The world is created from the text file.
    * If there is something wrong with the file,
    * an alert pops up notifying about the error
-   * and default map is loaded instead.
+   * and the default map is loaded instead.
    */
   val world: World = {
     try {
@@ -73,24 +71,7 @@ object Demo extends JFXApp {
   
   val renderingDistance = 25
   
-  /*
-   * The textures to be used for drawing the walls.
-   */
-  val path = "file:src/main/resources/textures"
-  val textures = Array(
-      
-//      new Image(path + "/colored-stone-pavement_black.jpg"),
-//      new Image(path + "/colored-stone-pavement_blue.jpg"),
-//      new Image(path + "/colored-stone-pavement.jpg"),
-//      new Image(path + "/RustPlain.jpg"),
-//      new Image(path + "/WoodPlanks.jpg"),
-      new Image(path + "/redbrick.png"),
-      new Image(path + "/bluestone.png"),
-      new Image(path + "/colorstone.png"),
-      new Image(path + "/mossy.png"),
-      new Image(path + "/purplestone.png"),
-      new Image(path + "/greystone.png"),
-      new Image(path + "/wood.png"))
+  
       
   /*
    * Allows the player to "pause" the demo. 
@@ -105,8 +86,9 @@ object Demo extends JFXApp {
     timer.stop()
     //Font size and color are set so that it's clearly visible that the game is paused
     gc.setFill("white")
+    gc.setTextAlign(TextAlignment.Center)
     gc.font = new Font(100)
-    gc.fillText("PAUSED", stage.getWidth() / 2 - 175, stage.getHeight() / 2 + 25)
+    gc.fillText("PAUSED", stage.getWidth() / 2, stage.getHeight() / 2)
     gc.font = Font.default
     this.paused = true
   }
@@ -160,7 +142,9 @@ object Demo extends JFXApp {
   /*
    * Create a new image from an existing one with a different 
    * brightness level according to "distance". That is, the 
-   * distance from the player to a point of a wall.
+   * distance from the player to a point of a wall. This is 
+   * necessary for creating multiple brightness levels for 
+   * the textures.
    */
   def getImageWithBrightness(image: Image, distance: Double) = {
     val brightnessCoefficient = 1 / (0.2 * distance + 1)
@@ -179,9 +163,14 @@ object Demo extends JFXApp {
   /* 
    * A precalculated array of multiple brightness levels for each texture.
    */
-  val textureStripes: Array[Array[Image]] = Array.tabulate(textures.size)(tex => 
+  val textureStripes: Array[Array[Image]] = Array.tabulate(world.textures.size)(tex => 
         Array.tabulate(10 * renderingDistance  + 1)(distance =>
-          getImageWithBrightness(textures(tex), 0.1 * distance)))
+          getImageWithBrightness(world.textures(tex), 0.1 * distance)))
+          
+  new Alert(AlertType.Information) {
+      headerText = "Controls"
+      contentText = "Press W, A, S, D to move, C to move automatically, \n F to change window size, P to pause and ESC to exit."
+  }.showAndWait()
   
   /*
    * Chooses an appropriate brightness for a texture 
@@ -208,7 +197,9 @@ object Demo extends JFXApp {
     /*
      * The walls are filtered out if their distance to the player is 
      * greater than the rendering distance and then sorted according
-     * to distance.
+     * to distance. The distance, in this case, is defined as the 
+     * distance from the player to the vertex of a wall that is further
+     * away from the player.
      */
     val walls = world.getWalls.filter(wall => (wall.v1 - player.getLocation).lengthSq < renderingDistance * renderingDistance)
                               .sortBy(wall => math.max((wall.v1 - player.getLocation).lengthSq, (wall.v2 - player.getLocation).lengthSq))
@@ -229,6 +220,7 @@ object Demo extends JFXApp {
        * been gone through without finding an intersection
        */
       while(!wallDrawn && wallIndex < walls.size) { 
+        //Select the wall with the current index
         val wall = walls(wallIndex)
         val intersection = ray.lineIntersect(wall)
         wallIndex += 1
@@ -264,9 +256,17 @@ object Demo extends JFXApp {
   private var previousTime: Long = 0
   var i = 0
   val timer = AnimationTimer(t => { 
+    /*
+     * The elapsed time can be 0.1 seconds maximum to avoid huge gaps in 
+     * movement after a pause
+     */
     val elapsedTime = math.min((t - previousTime) / 1000000000.0, 0.1) //The elapsed time in seconds
     previousTime = t
     if(i % 10 == 0) fps = (1 / elapsedTime).toInt
+    /*
+     * The player movement is handled according to which keys 
+     * are pressed
+     */
     (wPressed, sPressed, aPressed, dPressed) match {
       case (true, false, true, false) => player.moveFL(elapsedTime)
       case (true, false, false, true) => player.moveFR(elapsedTime)
@@ -278,16 +278,15 @@ object Demo extends JFXApp {
       case (_, _, false, true) => player.moveRight(elapsedTime)
       case (_, _, _, _) => 
     }
+    //Paint the walls on the window
     paint()
+    //Fps counter
     gc.setFill(new Color("white"))
     gc.fillText(fps.toString, 10, 10, 100)
     i += 1
     })
   timer.start()
-  new Alert(AlertType.Information) {
-      headerText = "Controls"
-      contentText = "Press W, A, S, D to move, C to move automatically, \n F to change window size, P to pause and ESC to exit."
-  }.showAndWait()
+  
   
   /*
    * The robot allows the cursor to stay in the center of the screen
@@ -295,7 +294,7 @@ object Demo extends JFXApp {
    * moved continuously in one direction without the movement 
    * suddenly stopping due to the cursor being out of the window
    */
-  val robot = new Robot
+  val robot = com.sun.glass.ui.Application.GetApplication.createRobot()
   
   val screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize()
   val screenHeight = screenSize.getHeight().toInt
@@ -309,7 +308,7 @@ object Demo extends JFXApp {
     if(!paused) {
       val dx = e.screenX - (stage.getX() + stage.getWidth() / 2)
       player.turn(dx / 2000)
-      robot.mouseMove(screenWidth / 2, screenHeight / 2)
+      robot.mouseMove((stage.getX() + stage.getWidth() / 2).toInt, (stage.getY() + stage.getHeight() / 2).toInt)
     }
   }}
 

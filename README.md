@@ -1,3 +1,3 @@
-﻿# 3D-visualisointi
+﻿# 3D-visualisation
 
-Ohjelmointistudio 2 -kurssin projektityö.
+Ray casting with scalafx.

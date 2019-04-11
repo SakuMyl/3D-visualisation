@@ -2,35 +2,54 @@ package main.scala
 
 class Player(location: Vec, heading: Double, val world: World) {
   
+  //The player's current heading in radians
   private var currentHeading = heading
   
+  //The currentLocation of the player as a Vec object
   private var currentLocation = location
   
   val fovInDegrees = 80 //Field of view in degrees
   val fov = math.toRadians(fovInDegrees) //Converted to radians
   val sensitivity = 5 //Determines how much moving the mouse turns the camera. 1 is very low, 10 is very high
+  val movingSpeed = 3 //The moving speed of the player
   
+  /*
+   * Turns the camera by changing the player's heading.
+   * dx is the amount how much the camera should be turned.
+   * Sensitivity also affects the turning speed.
+   */
   def turn(dx: Double) = {
     currentHeading += dx * sensitivity
   }
   
-  
+  //Moves the player forward, i.e. to the direction of the player's heading.
   def moveForward(elapsedTime: Double) = move(math.sin(currentHeading), math.cos(currentHeading), elapsedTime)
+  //Moves the player 90 degrees to the right from the player's heading
   def moveRight(elapsedTime: Double)   = move(math.cos(currentHeading), -math.sin(currentHeading), elapsedTime)
+  //Moves the player 90 degrees to the left from the player's heading
   def moveLeft(elapsedTime: Double)    = move(-math.cos(currentHeading), math.sin(currentHeading), elapsedTime)
+  //Moves the player to the opposite direction of the player's heading
   def moveBack(elapsedTime: Double)    = move(-math.sin(currentHeading), -math.cos(currentHeading), elapsedTime)
-  //Move forward and right
+  //Moves the player 45 degrees to the right from the player's heading
   def moveFR(elapsedTime: Double)      = move(math.sin(currentHeading + math.Pi / 4), math.cos(currentHeading + math.Pi / 4), elapsedTime)
-  //Move forward and left
+  //Moves the player 45 degrees to the left from the player's heading
   def moveFL(elapsedTime: Double)      = move(math.sin(currentHeading - math.Pi / 4), math.cos(currentHeading - math.Pi / 4), elapsedTime)
-  //Move back and right
+  ///Moves the player 135 degrees to the right from the player's heading
   def moveBR(elapsedTime: Double)      = move(-math.sin(currentHeading - math.Pi / 4), -math.cos(currentHeading - math.Pi / 4), elapsedTime)
-  //Move back and left
+  //Moves the player 135 degrees to the left from the player's heading
   def moveBL(elapsedTime: Double)      = move(-math.sin(currentHeading + math.Pi / 4), -math.cos(currentHeading + math.Pi / 4), elapsedTime)
   
+  /*
+   * Moves the player, i.e. changes the player's coordinates by some
+   * x and y factors multiplied by the time elapsed. Doesn't allow moving
+   * through walls.
+   */
   def move(xChange: Double, yChange: Double, elapsedTime: Double) = {
-    //The multiplier 3 is here to make movement faster 
-    val coEfficient = 3 * elapsedTime
+    /*
+     * How much the player moves depends on the time elapsed
+     * and the moving speed.
+     */
+    val coEfficient = movingSpeed * elapsedTime
     /*
      * For all walls near the player, check whether the player is trying to move through them before allowing the change of location.
      * The change of location is done for both x- and y-components separately to allow the player to "slide" on walls.
@@ -42,22 +61,6 @@ class Player(location: Vec, heading: Double, val world: World) {
     if(wallsNearby.forall (wall => new Line(currentLocation, newYLocation).lineIntersect(wall).isEmpty )) currentLocation = newYLocation
   }
   
-//  def wallWithinFov(wall: Wall) = {
-//    def pointWithinFov(point: Vec): Boolean = {
-//      val diff = point - currentLocation
-//      val length = diff.lengthSq
-//      if(length > Demo.renderingDistance * Demo.renderingDistance) return false
-//      else {
-//        val headingUnitized = new Vec(math.sin(currentHeading), math.cos(currentHeading))
-//        //Take the dot product of the heading and diff
-//        val dotProduct = headingUnitized.dotProduct(diff.unitize())
-//        dotProduct > math.cos(fov / 2) 
-//      }
-//    }
-//    pointWithinFov(wall.v1) || pointWithinFov(wall.v2) || 
-//    new Line(currentLocation, new Vec(currentLocation.x + 100 * math.sin(currentHeading),
-//    currentLocation.y + 100 * math.cos(currentHeading))).lineIntersect(wall).isDefined
-//  }
   def getHeading = this.currentHeading
   def getLocation = this.currentLocation
 }
