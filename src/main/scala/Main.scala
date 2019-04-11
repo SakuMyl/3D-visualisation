@@ -1,6 +1,5 @@
 package main.scala
 
-//Test
 import scalafx.Includes._
 import scalafx.application.JFXApp
 import scalafx.scene.canvas.Canvas
@@ -73,25 +72,7 @@ object Demo extends JFXApp {
   
   val renderingDistance = 25
   
-  /*
-   * The textures to be used for drawing the walls.
-   */
-  val path = "file:src/main/resources/textures"
-  val textures = Array(
-      
-//      new Image(path + "/colored-stone-pavement_black.jpg"),
-//      new Image(path + "/colored-stone-pavement_blue.jpg"),
-//      new Image(path + "/colored-stone-pavement.jpg"),
-//      new Image(path + "/RustPlain.jpg"),
-//      new Image(path + "/WoodPlanks.jpg"),
-      new Image(path + "/redbrick.png"),
-      new Image(path + "/bluestone.png"),
-      new Image(path + "/colorstone.png"),
-      new Image(path + "/mossy.png"),
-      new Image(path + "/purplestone.png"),
-      new Image(path + "/greystone.png"),
-      new Image(path + "/wood.png")
-      )
+  
       
   /*
    * Allows the player to "pause" the demo. 
@@ -180,9 +161,14 @@ object Demo extends JFXApp {
   /* 
    * A precalculated array of multiple brightness levels for each texture.
    */
-  val textureStripes: Array[Array[Image]] = Array.tabulate(textures.size)(tex => 
+  val textureStripes: Array[Array[Image]] = Array.tabulate(world.textures.size)(tex => 
         Array.tabulate(10 * renderingDistance  + 1)(distance =>
-          getImageWithBrightness(textures(tex), 0.1 * distance)))
+          getImageWithBrightness(world.textures(tex), 0.1 * distance)))
+          
+  new Alert(AlertType.Information) {
+      headerText = "Controls"
+      contentText = "Press W, A, S, D to move, C to move automatically, \n F to change window size, P to pause and ESC to exit."
+  }.showAndWait()
   
   /*
    * Chooses an appropriate brightness for a texture 
@@ -265,9 +251,17 @@ object Demo extends JFXApp {
   private var previousTime: Long = 0
   var i = 0
   val timer = AnimationTimer(t => { 
+    /*
+     * The elapsed time can be 0.1 seconds maximum to avoid huge gaps in 
+     * movement after a pause
+     */
     val elapsedTime = math.min((t - previousTime) / 1000000000.0, 0.1) //The elapsed time in seconds
     previousTime = t
     if(i % 10 == 0) fps = (1 / elapsedTime).toInt
+    /*
+     * The player movement is handled according to which keys 
+     * are pressed
+     */
     (wPressed, sPressed, aPressed, dPressed) match {
       case (true, false, true, false) => player.moveFL(elapsedTime)
       case (true, false, false, true) => player.moveFR(elapsedTime)
@@ -279,16 +273,15 @@ object Demo extends JFXApp {
       case (_, _, false, true) => player.moveRight(elapsedTime)
       case (_, _, _, _) => 
     }
+    //Paint the walls on the window
     paint()
+    //Fps counter
     gc.setFill(new Color("white"))
     gc.fillText(fps.toString, 10, 10, 100)
     i += 1
     })
   timer.start()
-  new Alert(AlertType.Information) {
-      headerText = "Controls"
-      contentText = "Press W, A, S, D to move, C to move automatically, \n F to change window size, P to pause and ESC to exit."
-  }.showAndWait()
+  
   
   /*
    * The robot allows the cursor to stay in the center of the screen

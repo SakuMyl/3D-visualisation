@@ -11,6 +11,26 @@ class World(textFile: String) {
   
   def getWalls = this.walls
   
+  /*
+   * The textures to be used for drawing the walls.
+   */
+  val path = "file:src/main/resources/textures"
+  val textures = Array(
+      
+//      new Image(path + "/colored-stone-pavement_black.jpg"),
+//      new Image(path + "/colored-stone-pavement_blue.jpg"),
+//      new Image(path + "/colored-stone-pavement.jpg"),
+//      new Image(path + "/RustPlain.jpg"),
+//      new Image(path + "/WoodPlanks.jpg"),
+    new Image(path + "/redbrick.png"),
+    new Image(path + "/bluestone.png"),
+    new Image(path + "/colorstone.png"),
+    new Image(path + "/mossy.png"),
+    new Image(path + "/purplestone.png"),
+    new Image(path + "/greystone.png"),
+    new Image(path + "/wood.png")
+  )
+      
   val reader = Source.fromFile(textFile).getLines
   
   //Keeps track of the line index
@@ -51,7 +71,7 @@ class World(textFile: String) {
              * i.e. a number that corresponds to some
              * texture number
              */
-            else if((0 to 7).contains(c.asDigit)) {
+            else if((0 to textures.size).contains(c.asDigit)) {
               arr(lineCursor)(charCursor) = c
             }
             else {
