@@ -15,5 +15,5 @@ libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.5"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"
  
 
-// Add dependency on JavaFX library based on JAVA_HOME variable
+// Add dependency on JavaFX library 
 unmanagedJars in Compile += Attributed.blank(file("jfxrt.jar"))
