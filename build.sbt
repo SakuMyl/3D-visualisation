@@ -11,9 +11,9 @@ fork in run := true
  
 // Add dependency on ScalaFX library
 libraryDependencies += "org.scalafx" %% "scalafx" % "8.0.144-R12"
-//libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.5"
-//libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"
+libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.5"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"
  
 
 // Add dependency on JavaFX library based on JAVA_HOME variable
-unmanagedJars in Compile += Attributed.blank(file(System.getenv("JAVA_HOME") + "/jre/lib/jfxrt.jar"))
+unmanagedJars in Compile += Attributed.blank(file("jfxrt.jar"))
