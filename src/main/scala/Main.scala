@@ -177,9 +177,10 @@ object Demo extends JFXApp {
     val ceilingColor = new Color("lightblue")
     val floorColor = new Color("gray")
     gc.setFill(ceilingColor)
-    gc.fillRect(0, 0, windowWidth, windowHeight / 2)
+    gc.fillRect(0, 0, windowWidth, windowHeight / 2 + windowHeight * player.getHeadingY / player.fov)
     gc.setFill(floorColor)
-    gc.fillRect(0, windowHeight / 2, windowWidth, windowHeight / 2)
+    gc.fillRect(0, windowHeight / 2 + windowHeight * player.getHeadingY / player.fov, 
+                windowWidth, windowHeight / 2 - windowHeight * player.getHeadingY / player.fov)
   }
   
   /*
@@ -200,7 +201,7 @@ object Demo extends JFXApp {
     //Go through each vertical stripe of pixels in the screen
     for(x <- 0 until windowWidth) { 
       //The angle of each ray depends on the field of view and the width of the window
-      val rayHeading = player.getHeading + (x - windowWidth / 2) * player.fov / windowWidth 
+      val rayHeading = player.getHeadingX + (x - windowWidth / 2) * player.fov / windowWidth 
       //Create a ray from current location to the direction of rayHeading to a distance equivalent to rendering distance
       val ray = new Line(player.getLocation, new Vec(player.getLocation.x + renderingDistance * math.sin(rayHeading), 
                                                      player.getLocation.y + renderingDistance * math.cos(rayHeading)))
@@ -222,8 +223,9 @@ object Demo extends JFXApp {
             //The distance from the player to the intersection point
             val distance = math.sqrt((ray.v1 - intersection).lengthSq)
             //The rectangle height is divided by math.cos(heading - rayHeading) to get rid of the fisheye effect
-            val rectHeight = (1.5 * windowHeight / (distance * player.fov * math.cos(player.getHeading - rayHeading))).toInt
+            val rectHeight = (1.5 * windowHeight / (distance * player.fov * math.cos(player.getHeadingX - rayHeading))).toInt
             
+            val rectY = (windowHeight - rectHeight) / 2 + windowHeight * player.getHeadingY / player.fov
             //Get the appropriate texture according to the distance
             val texture = getTextureBrightness(wall.tex, distance)
             
@@ -234,7 +236,7 @@ object Demo extends JFXApp {
              */
             val textureX = ((intersection.x % 1 + intersection.y % 1).abs * texture.getWidth()).toInt
             //Draw the one pixel wide stripe of the wall
-            gc.drawImage(texture, textureX, 0, 1, texture.getHeight(), x, (windowHeight - rectHeight) / 2, 1, rectHeight)
+            gc.drawImage(texture, textureX, 0, 1, texture.getHeight(), x, rectY, 1, rectHeight)
             //Set wallDrawn true to exit the while loop
             wallDrawn = true
           case None =>
@@ -297,7 +299,9 @@ object Demo extends JFXApp {
      */
     if(!paused) {
       val dx = e.screenX - (stage.getX() + stage.getWidth() / 2)
-      player.turn(dx / 2000)
+      val dy = (stage.getY() + stage.getHeight() / 2) - e.screenY 
+      player.turnX(dx / 2000)
+      player.turnY(dy / 2000)
       robot.mouseMove((stage.getX() + stage.getWidth() / 2).toInt, (stage.getY() + stage.getHeight() / 2).toInt)
     }
   }}
