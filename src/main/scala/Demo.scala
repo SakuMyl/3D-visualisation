@@ -281,9 +281,7 @@ object Demo extends JFXApp.PrimaryStage {
     
   }
   
-  var fps = 0
   private var previousTime: Long = 0
-  var i = 0
   val timer = AnimationTimer(t => { 
     /*
      * The elapsed time can be 0.1 seconds maximum to avoid huge gaps in 
@@ -291,7 +289,6 @@ object Demo extends JFXApp.PrimaryStage {
      */
     val elapsedTime = math.min((t - previousTime) / 1000000000.0, 0.1) //The elapsed time in seconds
     previousTime = t
-    if(i % 10 == 0) fps = (1 / elapsedTime).toInt
     /*
      * The player movement is handled according to which keys 
      * are pressed
@@ -309,10 +306,6 @@ object Demo extends JFXApp.PrimaryStage {
     }
     //Paint the walls on the window
     paint()
-    //Fps counter
-    gc.setFill(new Color("white"))
-    gc.fillText(fps.toString, 10, 10, 100)
-    i += 1
     })
   timer.start()
   
@@ -332,10 +325,19 @@ object Demo extends JFXApp.PrimaryStage {
      *  on the window
      */
     if(!paused) {
+      /*
+       * The horizontal movement of the mouse.
+       * Movement to the right is considered positive.
+       */
       val dx = e.screenX - (this.getX() + this.getWidth() / 2)
+      /*
+       * The vertical movement of the mouse. Movement 
+       * up is considered positive. 
+       */
       val dy = (this.getY() + this.getHeight() / 2) - e.screenY 
       player.turnX(dx / 2000)
       player.turnY(dy / 2000)
+      //The robot moves the mouse back to the center of the window
       robot.mouseMove((this.getX() + this.getWidth() / 2).toInt, (this.getY() + this.getHeight() / 2).toInt)
     }
   }}
@@ -355,12 +357,14 @@ object Demo extends JFXApp.PrimaryStage {
       case KeyCode.A => aPressed = true
       case KeyCode.S => sPressed = true        
       case KeyCode.D => dPressed = true
-      //Allows the player to move continously without pressing a key
+      //Changes the size of the window 
       case KeyCode.F => {
         if(!this.fullScreen.value) setFullScreen()
         else setSmallWindow()
       }
+      //Pauses the program
       case KeyCode.P => if(paused) continue() else pause()
+      //Closes the application
       case KeyCode.Escape => this.close() 
       case _ => 
     }
