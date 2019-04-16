@@ -119,10 +119,18 @@ object Demo extends JFXApp.PrimaryStage {
   def setSmallWindow() = {
     this.fullScreen = false
     this.resizable = false
+    /*
+     * Change the window width and height so 
+     * all the walls scale accordingly
+     */
     this.windowWidth /= 2
     this.windowHeight /= 2
     this.setWidth(windowWidth)
     this.setHeight(windowHeight)
+    /*
+     * The window is center on the screen
+     * by default, but it can be moved 
+     */
     this.centerOnScreen()
     /*
      * The demo has to paused and continued so that the
@@ -163,18 +171,26 @@ object Demo extends JFXApp.PrimaryStage {
         Array.tabulate(10 * renderingDistance  + 1)(distance =>
           getImageWithBrightness(world.textures(tex), 0.1 * distance)))
           
+  /*
+   * An alert notifying the user of the controls
+   * pops up before the app window.
+   */
   new Alert(AlertType.Information) {
       headerText = "Controls"
-      contentText = "Press W, A, S, D to move, C to move automatically, \n F to change window size, P to pause and ESC to exit."
+      contentText = "Press W, A, S, D to move, F to change window size,\nP to pause and ESC to exit."
   }.showAndWait()
   
   /*
    * Chooses an appropriate brightness for a texture 
    * according to player's distance from the wall
    */
-  def getTextureBrightness(texNumber: Int, distance: Double) = {
+  def getTextureWithBrightness(texNumber: Int, distance: Double) = {
     textureStripes(texNumber)((10 * distance).toInt)
   }
+  /*
+   * Paints the floor (the area below the horizon and walls)
+   * and the ceiling (the area above the horizon and walls)
+   */
   def paintFloorAndCeiling() = {
     gc.clearRect(0, 0, windowWidth, windowHeight)
     val ceilingColor = new Color("lightblue")
@@ -190,6 +206,9 @@ object Demo extends JFXApp.PrimaryStage {
    * This method clears the screen and paints the walls every frame 
    */
   def paint() = {
+    /*
+     * Paint the floor and ceiling before the walls
+     */
     paintFloorAndCeiling()
     /*
      * The walls are filtered out if their distance to the player is 
@@ -203,9 +222,15 @@ object Demo extends JFXApp.PrimaryStage {
                               
     //Go through each vertical stripe of pixels in the screen
     for(x <- 0 until windowWidth) { 
-      //The angle of each ray depends on the field of view and the width of the window
+      /*
+       * The angle of each ray depends on the field of view 
+       * and the width of the window.
+       */
       val rayHeading = player.getHeadingX + (x - windowWidth / 2) * player.fov / windowWidth 
-      //Create a ray from current location to the direction of rayHeading to a distance equivalent to rendering distance
+      /*
+       * Create a ray from current location to the direction
+       * of rayHeading to a distance equivalent to rendering distance.
+       */
       val ray = new Line(player.getLocation, new Vec(player.getLocation.x + renderingDistance * math.sin(rayHeading), 
                                                      player.getLocation.y + renderingDistance * math.cos(rayHeading)))
       
@@ -219,18 +244,24 @@ object Demo extends JFXApp.PrimaryStage {
       while(!wallDrawn && wallIndex < walls.size) { 
         //Select the wall with the current index
         val wall = walls(wallIndex)
-        val intersection = ray.lineIntersect(wall)
         wallIndex += 1
+        val intersection = ray.lineIntersect(wall)
         intersection match {
           case Some(intersection) => 
             //The distance from the player to the intersection point
             val distance = math.sqrt((ray.v1 - intersection).lengthSq)
-            //The rectangle height is divided by math.cos(heading - rayHeading) to get rid of the fisheye effect
+            /*
+             * The rectangle height is divided by math.cos(heading - rayHeading)
+             *  to get rid of the fisheye effect, that is the effect which makes
+             *  objects in the center of the screen appear larger than near the 
+             *  edges. The height is scaled up by a factor of 1.5 to make the
+             *  walls look larger.  
+             */
             val rectHeight = (1.5 * windowHeight / (distance * player.fov * math.cos(player.getHeadingX - rayHeading))).toInt
             
             val rectY = (windowHeight - rectHeight) / 2 + windowHeight * player.getHeadingY / player.fov
             //Get the appropriate texture according to the distance
-            val texture = getTextureBrightness(wall.tex, distance)
+            val texture = getTextureWithBrightness(wall.tex, distance)
             
             /*
              * The x location of the intersection point in the texture.
@@ -325,7 +356,6 @@ object Demo extends JFXApp.PrimaryStage {
       case KeyCode.S => sPressed = true        
       case KeyCode.D => dPressed = true
       //Allows the player to move continously without pressing a key
-      case KeyCode.C => if(wPressed) wPressed = false else wPressed = true
       case KeyCode.F => {
         if(!this.fullScreen.value) setFullScreen()
         else setSmallWindow()
