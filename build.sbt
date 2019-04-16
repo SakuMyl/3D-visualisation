@@ -16,4 +16,4 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"
  
 
 // Add dependency on JavaFX library 
-unmanagedJars in Compile += Attributed.blank(file("jfxrt.jar"))
+unmanagedJars in Compile += Attributed.blank(file("lib/jfxrt.jar"))
