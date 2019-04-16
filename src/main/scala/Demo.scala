@@ -28,7 +28,7 @@ object Demo extends JFXApp.PrimaryStage {
   val canvas = new Canvas(windowWidth, windowHeight)
   val gc = canvas.graphicsContext2D
   
-  
+  //The stage takes up all of the screen initially
   fullScreen = true
   //The window is set to be unresizable to avoid messing up the canvas
   resizable = false
@@ -36,7 +36,7 @@ object Demo extends JFXApp.PrimaryStage {
   fullScreenExitKey = KeyCombination.NO_MATCH
   scene = new Scene {
     content = canvas
-    //No cursor makes the experience better
+    //Remove the distracting cursor on the window.
     canvas.cursor = Cursor.None
   }
   
@@ -196,8 +196,18 @@ object Demo extends JFXApp.PrimaryStage {
     val ceilingColor = new Color("lightblue")
     val floorColor = new Color("gray")
     gc.setFill(ceilingColor)
+    /*
+     * Paint the ceiling. The height of the ceiling depends 
+     * on the player's vertical heading. The higher the player
+     * is heading, the larger the ceiling appears on the window.
+     */
     gc.fillRect(0, 0, windowWidth, windowHeight / 2 + windowHeight * player.getHeadingY / player.fov)
     gc.setFill(floorColor)
+    /*
+     * Paint the floor. The y position and height of the floor
+     * depends on the player's vertical heading. The lower the 
+     * player is heading, the larger the floor appears.  
+     */
     gc.fillRect(0, windowHeight / 2 + windowHeight * player.getHeadingY / player.fov, 
                 windowWidth, windowHeight / 2 - windowHeight * player.getHeadingY / player.fov)
   }
@@ -258,7 +268,10 @@ object Demo extends JFXApp.PrimaryStage {
              *  walls look larger.  
              */
             val rectHeight = (1.5 * windowHeight / (distance * player.fov * math.cos(player.getHeadingX - rayHeading))).toInt
-            
+            /*
+             * The y position of the rectangle on the window. Depends on the
+             * height of the window, the player's vertical heading and fov.
+             */
             val rectY = (windowHeight - rectHeight) / 2 + windowHeight * player.getHeadingY / player.fov
             //Get the appropriate texture according to the distance
             val texture = getTextureWithBrightness(wall.tex, distance)

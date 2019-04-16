@@ -126,9 +126,15 @@ class World(textFile: String) {
   def createWalls(arr: Array[Array[Char]]) = {
     arr.indices.foreach{rowIndex => arr(rowIndex).indices.foreach{charIndex =>
       if(arr(rowIndex)(charIndex) != '.') {
+        //The texture number 
         val tex = arr(rowIndex)(charIndex).asDigit
+        //The vertices of the walls to be created
         val vecs = Vector(new Vec(charIndex, -rowIndex), new Vec(charIndex + 1, -rowIndex), 
                           new Vec(charIndex + 1, -rowIndex - 1), new Vec(charIndex, -rowIndex - 1))
+        /*
+         * Create four walls in a clockwise manner 
+         * according to the vertices and the texture number.
+         */
         this.walls = this.walls ++: Vector(new Wall(vecs(0), vecs(1), tex), new Wall(vecs(1), vecs(2), tex), 
                                            new Wall(vecs(2), vecs(3), tex), new Wall(vecs(3), vecs(0), tex))
       }
@@ -138,7 +144,7 @@ class World(textFile: String) {
     
   var wallsToRemove = Vector[Wall]()
   
-  /* Remove walls that are covered by other walls to reduce performance issues,
+  /* Remove walls that are covered by other walls to increase performance.
    * If two walls have the same location, they are always blocked by other walls
    * and can thus never be seen by the player. 
    */
@@ -156,5 +162,5 @@ class World(textFile: String) {
    */
   private var yLoc = arr.indices.filter(row => arr(row).exists(_ == '.')).min
   private var xLoc = arr(yLoc).indexOf('.')
-  val player = new Player(new Vec(xLoc + 0.01, -yLoc - 0.01), math.Pi / 2, this)
+  val player = new Player(new Vec(xLoc + 0.5, -yLoc - 0.5), math.Pi / 2, this)
 }

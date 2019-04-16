@@ -5,10 +5,11 @@ class Player(location: Vec, heading: Double, val world: World) {
   //The player's current heading in radians
   private var currentHeadingX = heading
   
+  //The vertical heading of the player.
+  private var currentHeadingY = 0.0
+  
   //The currentLocation of the player as a Vec object
   private var currentLocation = location
-  
-  private var currentHeadingY = 0.0
   
   val fovInDegrees = 80//Field of view in degrees
   val fov = math.toRadians(fovInDegrees) //Converted to radians
@@ -16,13 +17,14 @@ class Player(location: Vec, heading: Double, val world: World) {
   val movingSpeed = 3 //The moving speed of the player
   
   /*
-   * Turns the camera by changing the player's heading.
+   * Turns the camera horizontally by changing the player's heading.
    * dx is the amount how much the camera should be turned.
    * Sensitivity also affects the turning speed.
    */
   def turnX(dx: Double) = {
     currentHeadingX += dx * sensitivity
   }
+  //Turns the camera vertically
   def turnY(dy: Double) = {
     currentHeadingY = math.max(-math.Pi / 2, math.min(currentHeadingY + dy * sensitivity, math.Pi / 2))
   }
