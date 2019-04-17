@@ -25,7 +25,9 @@ class Line(val v1: Vec, val v2: Vec) {
    * v = wall.v2 - wall.v1. s and t can be solved from 
    * this equation by using cross products to eliminate
    * s (when solving for t) and t (when solving for s)
-   * s * u x u = 0 and t * v x v = 0
+   * s * u x u = 0 and t * v x v = 0. Solving for t we
+   * get t = (wall.v1 - this.v1) x u / (u x v). Solving 
+   * for s we get s = (wall.v1 - this.v1) x v / (u x v)
    */
   def lineIntersect(wall: Line) = {
     val u = this.v2 - this.v1  
@@ -67,17 +69,17 @@ class Line(val v1: Vec, val v2: Vec) {
         None
       }
     } else {
-      val t = q / uxv
-      val s = r / uxv  
+      val t = r / uxv
+      val s = q / uxv  
       
       val epsilon = 0.000001
       if(t > -epsilon && t < 1 + epsilon && s > -epsilon && s < 1 + epsilon) {
-        Some(new Vec(wall.v1.x + s * v.x, wall.v1.y + s * v.y))
+        Some(new Vec(wall.v1.x + t * v.x, wall.v1.y + t * v.y))
       }
       else {
         None
       }
     }
   }
-  
+  override def toString = "Wall with vertices at: " + v1 + ", " + v2
 }

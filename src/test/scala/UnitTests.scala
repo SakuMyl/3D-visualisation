@@ -6,7 +6,8 @@ import org.scalatest.FlatSpec
 
 class UnitTests extends FlatSpec {
    
-  "lineIntersect" should "return the correct location when the intersection point is between the both lines' vertices" in {
+  "lineIntersect" should """return the correct location when the 
+   intersection point is between the both lines' vertices""" in {
     val line = new Line(new Vec(0, 0), new Vec(10, 0))
     val another = new Line(new Vec(5, -5), new Vec(5, 5))
     val intersect1 = line.lineIntersect(another)
@@ -15,7 +16,8 @@ class UnitTests extends FlatSpec {
     assert(intersect1.get.x == 5.0)
     assert(intersect1.get.y == 0.0)
   }
-  "lineIntersect" should "return the correct location when the intersection point is a vertex of one line" in {
+  "lineIntersect" should """return the correct location when the 
+   intersection point is a vertex of one line""" in {
     val line = new Line(new Vec(0, 0), new Vec(10, 0))
     val another = new Line(new Vec(0, -5), new Vec(0, 5))
     val intersect = line.lineIntersect(another)
@@ -24,7 +26,8 @@ class UnitTests extends FlatSpec {
     assert(intersect.get.x == 0.0)
     assert(intersect.get.y == 0.0)
   }
-  "lineIntersect" should "return the correct location when the intersection point is a shared vertex of two lines" in {
+  "lineIntersect" should """return the correct location when the 
+   intersection point is a shared vertex of two lines""" in {
     val line = new Line(new Vec(0, 0), new Vec(10, 0))
     val another = new Line(new Vec(0, 0), new Vec(0, 10))
     //For the case where the two lines are parallel

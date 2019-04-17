@@ -27,7 +27,7 @@ class World(textFile: String) {
     new Image(path + "/colorstone.png"),
     new Image(path + "/mossy.png"),
     new Image(path + "/purplestone.png"),
-    new Image(path + "/greystone.png"),
+    new Image(path + "/greystone.png")
   )
       
   val reader = Source.fromFile(textFile).getLines
@@ -79,10 +79,13 @@ class World(textFile: String) {
             else {
               throw new InvalidFileException("Invalid characters in file")
             }
+            //Move to the next character
             charCursor += 1
           }
+          //Move to the next line
           lineCursor += 1 
         }
+        //Read the next line
         line = reader.next().trim
       } catch {
         case e: Exception => 
@@ -90,8 +93,8 @@ class World(textFile: String) {
           e.printStackTrace()
       }
       /*
-       * In case some a row with a different length is encountered,
-       * an exception will be thrown
+       * In case some row with a different length is encountered,
+       * an exception will be thrown.
        */
     } else if(line.length != 0){
       throw new InvalidFileException("Some rows were of different length")
